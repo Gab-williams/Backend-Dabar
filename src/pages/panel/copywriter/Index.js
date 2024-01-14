@@ -138,8 +138,7 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
       "Authorization": "Bearer " + local.token,
     }
   }).then(res=>{
-    console.log(res)
-    if(res.data.success){
+    if(res.data.message){
       window.location.href = original+'/demo9/copywriter'
     }
   })

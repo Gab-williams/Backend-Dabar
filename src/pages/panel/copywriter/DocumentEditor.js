@@ -247,6 +247,9 @@ const DocumentEditor = () => {
 // storydatalist
 const [writerdata, Setwriterdata] = useState([])
 const [categorydata, Setcategorydata] = useState([])
+
+const [categoryword, Setcategoryword] = useState("") 
+const [writerword, Setwriterword] = useState("")
 useEffect(()=>{
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
  
@@ -276,6 +279,13 @@ useEffect(()=>{
     })
   })
 
+},[])
+
+
+
+useEffect(()=>{
+  let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+
   if(editid){
     let url = 'api/admin/storyedit/'+parseInt(editid)
     apiClient.get('/sanctum/csrf-cookie').then(()=>{
@@ -285,13 +295,13 @@ useEffect(()=>{
           }
       }).then(res=>{
         if(res.data.message){
-          
         let answriter = writerdata.find((item)=>item.id == res.data.message.writer_id)
        let anscategory = categorydata.find((item)=>item.id == res.data.message.category_id)
           Setpresummary(res.data.message.presummary)
           Setread_time(res.data.message.read_time)
           // let answriterx = (answriter && typeof answriter === 'object' && Object.keys(answriter).length > 0) ? answriter.value : "";
           // let anscategoryx = (anscategory && Object.keys(anscategory).length > 0) ? anscategory.value : "";
+          
           Setwriterword(answriter)
            Setcategoryword(anscategory)
       
@@ -301,12 +311,9 @@ useEffect(()=>{
     })
 
   }
+},[editid, writerdata, categorydata])
 
 
-},[])
-
-const [categoryword, Setcategoryword] = useState("") 
-const [writerword, Setwriterword] = useState("")
 
 const handleCategory = (categoryword)=>{
   Setcategoryword(categoryword)

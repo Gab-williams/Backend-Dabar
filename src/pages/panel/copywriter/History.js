@@ -8,6 +8,8 @@ import { CopyToClipboard } from "react-copy-to-clipboard";
 import { Card } from "reactstrap";
 
 const History = () => {
+    const itemCount = 2;
+    const [showCount,setShowCount] = useState(itemCount);
   return (
     <React.Fragment>
       <Head title="History"></Head>
@@ -25,8 +27,8 @@ const History = () => {
         <Block>
         <div className="nk-history">
             {history.map((hitem,hindex)=> {
-                const itemCount = 2;
-                const [showCount,setShowCount] = useState(itemCount);
+                
+              
                 return (
                     <React.Fragment key={Math.floor(Math.random()*9999999)}>
                         {hitem.date && 
