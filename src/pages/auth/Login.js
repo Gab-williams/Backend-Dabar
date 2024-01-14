@@ -27,8 +27,8 @@ const Login = () => {
   const [password, Setpassword] = useState("")
   const [emailmessage, Setemailmessage] = useState("")
   const [passwordmessage, Setpasswordmessage] = useState("")
-
-
+  const [usertype, Setusertype] = useState("")
+  const [usertypemessage, Setusertypemessage] = useState("")
   const apiClient = axios.create({
     baseURL: "http://127.0.0.1:8000/",
     withCredentials: true
@@ -37,54 +37,112 @@ const Login = () => {
   // const {  register, handleSubmit, formState: { errors } } = useForm();
    const handleSubmit = (e)=>{
     e.preventDefault();
-    setLoading(true)
-    let formData = new FormData();
-    let headers = new Headers();
-    headers.append('Content-Type', 'application/json')
-    formData.append('email',  email)
-    formData.append('password',  password)
-    let url = 'api/admin_login'
-    apiClient.get('/sanctum/csrf-cookie').then(()=>{
-      apiClient.post(url, formData, headers).then(res=>{
-        if(res.data.message){
-          setLoading(false)
-          const encrypt= AES.encrypt(JSON.stringify(res.data.data), 'TheDabar').toString();
-          localStorage.setItem('thedabar', encrypt);
-          setTimeout(()=>{
-                Setemail("")
-                Setpassword("")
-          },3000)
-          window.location.href = `http://localhost:3000/demo9/copywriter`;
-        }else{
-          setLoading(false)
-          // res.data.error
-          Setemailmessage(res.data.error)
-          Setpasswordmessage(res.data.error)
-          setTimeout(()=>{
-            Setemailmessage("")
-            Setpasswordmessage("")
-           },3000)
-        }
+      if(usertype == 'Admin'){
+        setLoading(true)
+        let formData = new FormData();
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json')
+        formData.append('email',  email)
+        formData.append('password',  password)
+        let url = 'api/admin_login'
+        apiClient.get('/sanctum/csrf-cookie').then(()=>{
+          apiClient.post(url, formData, headers).then(res=>{
+            if(res.data.message){
+              setLoading(false)
+              const encrypt= AES.encrypt(JSON.stringify(res.data.data), 'TheDabar').toString();
+              localStorage.setItem('thedabar', encrypt);
+              setTimeout(()=>{
+                    Setemail("")
+                    Setpassword("")
+              },3000)
+              window.location.href = `http://localhost:3000/demo9/copywriter`;
+            }else{
+              setLoading(false)
+              // res.data.error
+              Setemailmessage(res.data.error)
+              Setpasswordmessage(res.data.error)
+              setTimeout(()=>{
+                Setemailmessage("")
+                Setpasswordmessage("")
+               },3000)
+            }
+    
+          }).catch(err=>{
+            let error = err.response.data.errors
+            if(error.email){
+              setLoading(false)
+              Setemailmessage(error.email[0])
+              setTimeout(()=>{
+                Setemailmessage("")
+                },3000)
+            }else if (error.password){
+              setLoading(false)
+              Setpasswordmessage(error.password[0])
+              setTimeout(()=>{
+                Setpasswordmessage("")
+                },3000)
+            }
+    
+          })
+    
+        })
 
-      }).catch(err=>{
-        let error = err.response.data.errors
-        if(error.email){
-          setLoading(false)
-          Setemailmessage(error.email[0])
-          setTimeout(()=>{
-            Setemailmessage("")
-            },3000)
-        }else if (error.password){
-          setLoading(false)
-          Setpasswordmessage(error.password[0])
-          setTimeout(()=>{
-            Setpasswordmessage("")
-            },3000)
-        }
+      }else if(usertype == 'Editor'){
 
-      })
+        setLoading(true)
+        let formData = new FormData();
+        let headers = new Headers();
+        headers.append('Content-Type', 'application/json')
+        formData.append('email',  email)
+        formData.append('password',  password)
+        let url = 'api/editor_login'
+        apiClient.get('/sanctum/csrf-cookie').then(()=>{
+          apiClient.post(url, formData, headers).then(res=>{
+            if(res.data.message){
+              setLoading(false)
+              const encrypt= AES.encrypt(JSON.stringify(res.data.data), 'TheDabar').toString();
+              localStorage.setItem('thedabar', encrypt);
+              setTimeout(()=>{
+                    Setemail("")
+                    Setpassword("")
+              },3000)
+              window.location.href = `http://localhost:3000/demo9/copywriter`;
+            }else{
+              setLoading(false)
+              // res.data.error
+              Setemailmessage(res.data.error)
+              Setpasswordmessage(res.data.error)
+              setTimeout(()=>{
+                Setemailmessage("")
+                Setpasswordmessage("")
+               },3000)
+            }
+    
+          }).catch(err=>{
+            let error = err.response.data.errors
+            if(error.email){
+              setLoading(false)
+              Setemailmessage(error.email[0])
+              setTimeout(()=>{
+                Setemailmessage("")
+                },3000)
+            }else if (error.password){
+              setLoading(false)
+              Setpasswordmessage(error.password[0])
+              setTimeout(()=>{
+                Setpasswordmessage("")
+                },3000)
+            }
+    
+          })
+    
+        })
 
-    })
+
+      }else{
+        Setusertypemessage("Please Select a User Type")
+      }
+   
 
    }
 
@@ -133,6 +191,31 @@ const Login = () => {
                  {emailmessage &&<span className="invalid">{emailmessage}</span> }  
               </div>
             </div>
+           
+            <div className="form-group">
+              <div className="form-label-group">
+                <label className="form-label" htmlFor="default-01">
+                  User Type
+                </label>
+              </div>
+              <div className="form-control-wrap">
+                <select
+                  type="text"
+                  id="default-01"
+                  value={usertype}
+                  onChange={(e)=>Setusertype(e.target.value)}
+                  placeholder="Enter your email address"
+                  className="form-control-lg form-control" >
+                    <option>Select User Type</option>
+                    <option>Admin</option>
+                    <option>Editor</option>
+                    </select>
+                 {usertypemessage &&<span className="invalid">{usertypemessage}</span> }  
+              </div>
+            </div>
+
+
+
             <div className="form-group">
               <div className="form-label-group">
                 <label className="form-label" htmlFor="password">
