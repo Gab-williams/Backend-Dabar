@@ -8,15 +8,17 @@ import { Block, BlockBetween, BlockHead, BlockHeadContent, BlockTitle, BlockDes,
   DataTableHead,
   DataTableRow,
   DataTableItem } from "../../../components/Component";
-import { Link } from "react-router-dom";
-import { 
+  import { Link, useNavigate } from "react-router-dom";
+  import { 
   DropdownMenu,
   DropdownToggle,
   UncontrolledDropdown,
   DropdownItem, Badge } from "reactstrap";
 
 import { documents } from "./data/document";
-
+import { AES, enc } from 'crypto-js';
+import axios from 'axios';
+import ReactPaginate from 'react-paginate';
 const DocumentDrafts = () => {
 
   const [data, setData] = useState(documents);
@@ -29,7 +31,26 @@ const DocumentDrafts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage, setItemPerPage] = useState(10);
   const [sort, setSortState] = useState("");
+  const [story, Setstory] = useState([])
 
+  const bgcolor = ['dark', 'info', 'primary', 'warning', 'secondary', 'danger', 'gray'];
+  const local =  localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+  const original = window.location.origin
+  useEffect(()=>{
+    if(local){
+      
+     }else{
+       localStorage.removeItem('thedabar')
+       window.location.href=`${original}/demo9/auth-login`;
+     }
+ 
+  },[local])
+
+  const apiClient = axios.create({
+    baseURL: "http://127.0.0.1:8000/",
+    withCredentials: true
+  });
+    const [last, Setlast] = useState(0)
 
   // Sorting data
   const sortFunc = (params) => {
@@ -51,6 +72,21 @@ const DocumentDrafts = () => {
       return item;
     });
     setData([...newData]);
+
+    let url = 'api/admin/unpublishedstories'
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        console.log(res)
+        if(res.data.message){
+          Setstory(res.data.message.data)
+          Setlast(res.data.message.last_page)
+        }
+      })
+    })
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Changing state value when searching name
@@ -76,6 +112,20 @@ const DocumentDrafts = () => {
   // onChange function for searching name
   const onFilterChange = (e) => {
     setSearchText(e.target.value);
+    let url = `api/admin/searchunpublishedstories?search=${e.target.value}&number=${1}`
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        console.log(res)
+        if(res.data.success){
+          Setstory(res.data.success.data)
+
+        }
+      })
+    })
   };
 
 
@@ -89,6 +139,81 @@ const DocumentDrafts = () => {
 
   // Change Page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+
+  const navigate = useNavigate();
+  const handleEdit =(e,id)=>{
+    e.preventDefault();
+    console.log(e.target, id)
+   navigate('/demo9/copywriter/document-editor', {state:id})
+  }
+
+  const handleCreate =(e)=>{
+    e.preventDefault();
+   
+   navigate('/demo9/copywriter/document-editor')
+  }
+
+  const handleDelete = (e, id)=>{
+    e.preventDefault(); 
+    let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+let formData = new FormData();
+formData.append('id',  id)
+let urlxs = 'api/admin/deletesinglestory'
+apiClient.get('/sanctum/csrf-cookie').then(()=>{
+  apiClient.post(urlxs, formData, {
+    headers: {
+      "Authorization": "Bearer " + local.token,
+    }
+  }).then(res=>{
+    if(res.data.message){
+      window.location.href = original+'/demo9/copywriter'
+    }
+  })
+})
+  }
+
+
+  const handleNext = (ans)=>{
+    let Answer = ans.selected + 1;
+    if(onSearchText != ""){
+  
+      let url = `api/admin/searchunpublishedstories?search=${onSearchText}&number=${Answer}`
+      apiClient.get('/sanctum/csrf-cookie').then(()=>{
+        apiClient.get(url,   {
+          headers:{
+            "Authorization":"Bearer "+local.token,
+            }
+        }).then(res=>{
+          console.log(res)
+          if(res.data.success){
+            Setstory(res.data.success)
+  
+          }
+        })
+      })
+  
+    }else{
+    //  unpublishedstories
+      let url = `api/admin/unpublishedstories?number=${Answer}`
+      apiClient.get('/sanctum/csrf-cookie').then(()=>{
+        apiClient.get(url,   {
+          headers:{
+            "Authorization":"Bearer "+local.token,
+            }
+        }).then(res=>{
+          console.log(res)
+          if(res.data.message){
+            Setstory(res.data.message.data)
+  
+          }
+        })
+      })
+  
+    }
+  
+   }
+
 
 
   return (
@@ -105,7 +230,7 @@ const DocumentDrafts = () => {
               </BlockDes>
             </BlockHeadContent>
             <BlockHeadContent>
-              <a href="#" className="btn btn-primary d-none d-sm-inline-flex"><em className="icon ni ni-plus"></em><span>Create New</span></a>
+              <a href="#" className="btn btn-primary d-none d-sm-inline-flex"><em className="icon ni ni-plus"></em><span onClick={(e)=>handleCreate(e)}>Create New</span></a>
               <a href="#" className="btn btn-icon btn-primary d-inline-flex d-sm-none"><em className="icon ni ni-plus"></em></a>
             </BlockHeadContent>
           </BlockBetween>
@@ -201,18 +326,35 @@ const DocumentDrafts = () => {
                 <DataTableRow></DataTableRow>
               </DataTableHead>
               {/*Head*/}
-              {currentItems.length > 0
-                ? currentItems.map((item) => {
+              {story.length > 0
+                ? story.map((item, index) => {
+                     
+                  const randomIndex = Math.floor(Math.random() * index + 1);
+                  // Use the random index to get a random element from the array
+                  const randomColor = bgcolor[randomIndex];
+
+                  let timez = new Date(item.created_at)
+                  const monthNames = [
+                    "Jan", "Feb", "Mar",
+                    "Apr", "May", "Jun", "Jul",
+                    "Aug", "Sept", "Oct",
+                    "Nov", "Dec"
+                  ];   
+                  const day = timez.getDate();
+                  const monthIndex = timez.getMonth();
+                  const year = timez.getFullYear();
+                  const formattedDate = `${monthNames[monthIndex]} ${day}  ${year}`;
+
                     return (
                       <DataTableItem key={item.id}>
                         <DataTableRow>
-                          <div className="caption-text">{item.name}</div>
+                          <div className="caption-text">{item.heading}</div>
                         </DataTableRow>
                         <DataTableRow size="sm">
-                          <Badge color={item.tagcolor} className="badge-dim rounded-pill">{item.type}</Badge>
+                          <Badge color={randomColor} className="badge-dim rounded-pill">{item.category_id}</Badge>
                         </DataTableRow>
                         <DataTableRow size="md">
-                          <div className="sub-text d-inline-flex flex-wrap gx-2">{item.lastmodified}</div>
+                          <div className="sub-text d-inline-flex flex-wrap gx-2">{formattedDate}</div>
                         </DataTableRow>
                         <DataTableRow className="nk-tb-col-tools">
                           <ul className="nk-tb-actions gx-1">
@@ -239,24 +381,20 @@ const DocumentDrafts = () => {
                                       <DropdownItem
                                         tag="a"
                                         href="#edit"
-                                        onClick={(ev) => {
-                                          ev.preventDefault();
-                                        }}
+                                        onClick={(e) =>handleEdit(e, item.id)}
                                       >
                                         <Icon name="edit"></Icon>
-                                        <span>Rename</span>
+                                        <span>Edit</span>
                                       </DropdownItem>
                                     </li>
                                     <li>
                                       <DropdownItem
                                         tag="a"
                                         href="#trash"
-                                        onClick={(ev) => {
-                                          ev.preventDefault();
-                                        }}
+                                        onClick={(e) =>handleDelete(e, item.id)}
                                       >
                                         <Icon name="trash"></Icon>
-                                        <span>Move to Trash</span>
+                                        <span>Delete</span>
                                       </DropdownItem>
                                     </li>
                                   </ul>
@@ -271,7 +409,24 @@ const DocumentDrafts = () => {
                 : null}
             </DataTableBody>
             <div className="card-inner">
-              {currentItems.length > 0 ? (
+
+            <ReactPaginate
+                  previousLabel={'<'}
+                  nextLabel={'>'}
+                    pageCount={last}
+                    breakLabel={"..."}
+                    marginPagesDisplayed={1}
+                    pageRangeDisplayed={1}
+                    onPageChange={handleNext}
+                    containerClassName={'pagination'}
+                    // pageClassName={'page-link'}
+                    pageLinkClassName={'page-link'}
+                    previousClassName={'page-item disabled'}
+                    nextClassName={'page-item disabled'}
+                    previousLinkClassName={'page-link-prev page-link'}
+                    nextLinkClassName={'page-link-next page-link'}
+                  />
+              {/* {currentItems.length > 0 ? (
                 <PaginationComponent
                   itemPerPage={itemPerPage}
                   totalItems={data.length}
@@ -282,7 +437,7 @@ const DocumentDrafts = () => {
                 <div className="text-center">
                   <span className="text-silent">No data found</span>
                 </div>
-              )}
+              )} */}
             </div>
           </DataTable>
         </Block>

@@ -232,10 +232,10 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                         </div>
                     </td>
                     <td className="nk-tb-col">
-                      <div className="caption-text">{item.heading} lol</div>
+                      <div className="caption-text">{item.heading}</div>
                     </td>
                     <td className="nk-tb-col tb-col-sm">
-                      <Badge color={'info'} className="badge-dim rounded-pill">{item.category_id+"W.i.p"}</Badge>
+                      <Badge color={'info'} className="badge-dim rounded-pill">{item.category_id}</Badge>
                     </td>
                     <td className="nk-tb-col tb-col-md">
                       <div className="sub-text d-inline-flex flex-wrap gx-2">{formattedDate}</div>

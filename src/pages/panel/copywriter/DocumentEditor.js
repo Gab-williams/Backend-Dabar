@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef,useCallback } from "react";
 import Content from "../../../layout/content/Content";
 import Head from "../../../layout/head/Head";
 import Dropzone from "react-dropzone";
 import ReactQuill from 'react-quill';
+import { useQuill } from "react-quilljs";
 // import "../../node_modules/react-quill/dist/quill.snow.css";
 import "../../../../node_modules/react-quill/dist/quill.snow.css"
+// import ImageKit from 'imagekit';
+
 import {
   Block,
   BlockBetween,
@@ -33,15 +36,20 @@ import {
   Label,
 } from "reactstrap";
 import classnames from "classnames";
-import { Editor } from "@tinymce/tinymce-react";
+// import { Editor } from "@tinymce/tinymce-react";
 import { templates } from "./data/templates";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { categories } from "./data/category";
 import axios from 'axios';
 import { AES, enc } from 'crypto-js';
 import { useLocation, useNavigate } from "react-router-dom";
-
-
+import DatePicker from "react-datepicker";
+import 'react-datepicker/dist/react-datepicker.css';
+import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw, ContentState } from 'draft-js';
+import { Editor as WysiwygEditor } from 'react-draft-wysiwyg';
+import "../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
+import draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs';
 const options = [
     { value: 'chocolate', label: 'Chocolate' },
     { value: 'strawberry', label: 'Strawberry' },
@@ -189,6 +197,8 @@ const DocumentEditor = () => {
   const [currentStep, setCurrentStep] = useState("list");
   const [selectedTemplate, setSelectedTemplate] = useState();
   const [copyState, setCopyState] = useState(false);
+  const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
+
   const navigate = useNavigate();
   useEffect(() => {
     setActiveTab(tabValue);
@@ -203,10 +213,200 @@ const DocumentEditor = () => {
     setSelectedTemplate(cTemplate[0]);
   };
 
+ 
+
   const apiClient = axios.create({
     baseURL: "http://127.0.0.1:8000/",
     withCredentials: true
   });
+
+  const uploadToImageKit = async (file) => {
+    console.log(file)
+    let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+    let urlxx = '/api/admin/uploadauth';
+    apiClient.get(urlxx,  {
+    headers:{
+      "Authorization":"Bearer "+local.token,
+      }
+    }).then( async res=>{
+      if(res.data.success){
+        let filename = 'Dabar'
+        var formData = new FormData();
+        formData.append("file", file);
+        formData.append("fileName", filename);
+        formData.append("publicKey", "public_JTJgA6cHXctE0Rt6gwXWQsAygjA=");
+            formData.append("signature", res.data.success.signature || "");
+          formData.append("expire", res.data.success.expire || 0);
+        formData.append("token", res.data.success.token);
+            let urlxc = "https://upload.imagekit.io/api/v1/files/upload";
+           let responsex = await fetch(urlxc, {
+                 method: "POST",
+                 body: formData
+             })
+             const responseData = await responsex.json();
+              //  let imagekit = responseData.url
+
+
+                  // Get the current content state of the editor
+                  const currentContentState = editorState.getCurrentContent();
+
+                  // Create an entity for the image with the src attribute set to the ImageKit URL
+                  const contentStateWithEntity = currentContentState.createEntity('IMAGE', 'IMMUTABLE', {
+                    src: responseData.url,
+                  });
+
+                  const entityKey = contentStateWithEntity.getLastCreatedEntityKey();
+                  
+                  // Add the image to the content state
+                  const newContentState = ContentState.createFromBlockArray(
+                    contentStateWithEntity.getBlockMap().toArray(),
+                    contentStateWithEntity.getEntityMap()
+                  );
+
+                  const newEditorState = EditorState.set(editorState, { currentContent: newContentState });
+
+                  // Replace the selected text with the image entity
+                  const newEditorStateWithImage = RichUtils.toggleLink(
+                    newEditorState,
+                    newEditorState.getSelection(),
+                    entityKey
+                  );
+
+                  // Update the editor state
+                  onEditorStateChange(newEditorStateWithImage);
+
+                  // Return the data structure expected by the editor
+                  return { data: { link: responseData.url } };      }
+    })
+  })
+  };
+
+  const Imagekitupload = async (data) => {
+    try {
+      let local = localStorage.getItem('thedabar') ? JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)) : {};
+      
+      // Ensure CSRF cookie is set
+      await apiClient.get('/sanctum/csrf-cookie');
+  
+      let urlxx = '/api/admin/uploadauth';
+      let response = await apiClient.get(urlxx, {
+        headers: {
+          "Authorization": "Bearer " + local.token,
+        }
+      });
+  
+      if (response.data.success) {
+        let filename = 'Dabar';
+        var formData = new FormData();
+        formData.append("file", data);
+        formData.append("fileName", filename);
+        formData.append("publicKey", "public_JTJgA6cHXctE0Rt6gwXWQsAygjA=");
+        formData.append("signature", response.data.success.signature || "");
+        formData.append("expire", response.data.success.expire || 0);
+        formData.append("token", response.data.success.token);
+  
+        let urlxc = "https://upload.imagekit.io/api/v1/files/upload";
+        let fetchResponse = await fetch(urlxc, {
+          method: "POST",
+          body: formData
+        });
+  
+        if (fetchResponse.ok) {
+          const responseData = await fetchResponse.json();
+          return responseData.url;
+        } else {
+          console.error("Image upload failed:", fetchResponse.statusText);
+          // Handle error as needed
+          return null;
+        }
+      } else {
+        console.error("Failed to get upload authorization:", response.statusText);
+        // Handle error as needed
+        return null;
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+      // Handle error as needed
+      return null;
+    }
+  }
+
+
+
+
+  // const quillRef = useRef(null);
+ 
+
+
+  // const handleSendImage = async (img)=>{
+  //   const imageFile = await fetch(img).then((res) => res.blob());
+  //   const imageKitUrl = await uploadToImageKit(imageFile);
+  //   return  imageKitUrl;
+  // }
+
+
+
+  
+   
+//   const modules = {
+//   toolbar: {
+//     container: [
+//       [{ header: [1, 2, false] }],
+//       ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+//       [{ list: 'ordered' }, { list: 'bullet' }],
+//       ['link', 'image'],
+//       ['clean'],
+//     ],
+//   },
+//   richText: true,
+//   handlers: {
+//     image: handleImageInsert,
+//   },
+// };
+  
+ const handleImageInsert  = ()=>  {
+  if (quill) {
+    const content = quill.getContents();
+    // console.log(content)
+  }
+};
+
+  const modules = {
+  toolbar: {
+    container: [
+      [{ header: [1, 2, false] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [{ list: 'ordered' }, { list: 'bullet' }],
+      ['link', 'image'],
+      ['clean'],
+    ],
+    handlers: {
+      image:handleImageInsert,
+    },
+  },
+};
+
+const formats = [
+  "header",
+  "font",
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "blockquote",
+  "list",
+  "bullet",
+  "link",
+  // "image",
+  // "video",
+  // "code-block",
+  ]
+
+const {quill, quillRef} = useQuill(modules, formats);
+  
+// console.log(quillRef)
 
   const location = useLocation();
   const editid = location.state;
@@ -217,16 +417,30 @@ const DocumentEditor = () => {
   const [category_id, Setcategory_id] = useState("")
   const [writer_id, Setwriter_id] = useState("")
   const [localx, Setlocalx] = useState("")
-
-  const handleSubmit = (e)=>{
+  const [heading, Setheading] = useState("")
+  const [main_image, Setmain_image] = useState("")
+  const [keypoints, Setkeypoints] = useState("")
+  const [thumbnail, Setthumbnail] = useState("")
+  const [schedule_story_time, Setschedule_story_time] = useState(new Date())
+  const [status, Setstatus] = useState(0)
+  const handleSubmit = async(e)=>{
     e.preventDefault();
     let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
     let formData = new FormData();
-    formData.append('body',  body)
+    let thumbnailx =  await Imagekitupload(thumbnail);
+   let main_imagex =   await Imagekitupload(main_image);
+   const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+    formData.append('body',  contentStatex)
     formData.append('presummary',  presummary)
     formData.append('read_time',  read_time)
     formData.append('category_id',  category_id)
     formData.append('writer_id',  writer_id)
+    formData.append('main_image', main_imagex)
+    formData.append('keypoint', keypoints)
+    formData.append('thumbnail', thumbnailx)
+    formData.append("heading", heading)
+    formData.append('status', status)
+    formData.append("schedule_story_time", schedule_story_time)
     let url = 'api/admin/createstory'
     apiClient.get('/sanctum/csrf-cookie').then(()=>{
       apiClient.post(url, formData, {
@@ -243,6 +457,8 @@ const DocumentEditor = () => {
     })
 
   }
+
+ 
 
 // storydatalist
 const [writerdata, Setwriterdata] = useState([])
@@ -299,6 +515,20 @@ useEffect(()=>{
        let anscategory = categorydata.find((item)=>item.id == res.data.message.category_id)
           Setpresummary(res.data.message.presummary)
           Setread_time(res.data.message.read_time)
+          Setheading(res.data.message.heading)
+          Setmain_image(res.data.message.main_image)
+          Setthumbnail(res.data.message.thumbnail)
+          Setkeypoints(res.data.message.keypoint)
+          Setschedule_story_time(new Date(res.data.message.schedule_story_time))
+          Setwriter_id(res.data.message.writer_id)
+          Setcategory_id(res.data.message.category_id)
+          let stringx = "<p>dhdhjdjdsj</p>";
+          var parser = new DOMParser();
+          var parsedHtml = parser.parseFromString(res.data.message.body, "text/html");
+         let changedraft = htmlToDraft(parsedHtml.body.innerHTML)
+         const contentState = ContentState.createFromBlockArray(changedraft.contentBlocks);
+          let ansx = EditorState.createWithContent(contentState)
+          setEditorState(ansx)
           // let answriterx = (answriter && typeof answriter === 'object' && Object.keys(answriter).length > 0) ? answriter.value : "";
           // let anscategoryx = (anscategory && Object.keys(anscategory).length > 0) ? anscategory.value : "";
           
@@ -329,34 +559,116 @@ const handleWriter = (writerword)=>{
   let info = writerdata.find((item)=>item.value == selectedValue)
   Setwriter_id(info.id)
 }
-
-const handleEdit =(e)=>{
+// 
+const handleEdit = async(e)=>{
 e.preventDefault();
 let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
 
-let formData = new FormData();
-formData.append('body',  body)
-formData.append('presummary',  presummary)
-formData.append('read_time',  read_time)
-formData.append('_method', 'put')
-formData.append('category_id',  category_id)
-formData.append('writer_id',  writer_id)
-formData.append('id',  editid)
-let url = 'api/admin/editstory'
-apiClient.get('/sanctum/csrf-cookie').then(()=>{
-  apiClient.post(url, formData, {
-    headers:{
-      "Authorization":"Bearer "+local.token,
+
+const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+if(Object.prototype.toString.call(thumbnail) === '[object Object]' && Object.prototype.toString.call(main_image) === '[object Object]'){
+  let thumbnailx =  await Imagekitupload(thumbnail);
+let main_imagex =   await Imagekitupload(main_image);
+  let formData = new FormData();
+  formData.append('body',  contentStatex)
+  formData.append('presummary',  presummary)
+  formData.append('read_time',  read_time)
+  formData.append("heading", heading)
+  formData.append('main_image', main_imagex)
+  formData.append('keypoint', keypoints)
+  formData.append('thumbnail', thumbnailx)
+  formData.append("schedule_story_time", schedule_story_time)
+  formData.append('status', status)
+  formData.append('_method', 'put')
+  formData.append('category_id',  category_id)
+  formData.append('writer_id',  writer_id)
+  formData.append('id',  editid)
+  let url = 'api/admin/editstory'
+  apiClient.get('/sanctum/csrf-cookie').then(()=>{
+    apiClient.post(url, formData, {
+      headers:{
+        "Authorization":"Bearer "+local.token,
+        }
+    }).then(res=>{
+      if(res.data.success){
+       
+        window.location.href = original+'/demo9/copywriter'
+  
       }
-  }).then(res=>{
-    if(res.data.success){
-     
-      window.location.href = original+'/demo9/copywriter'
-
-    }
+    })
   })
-})
 
+}else{
+
+  let formData = new FormData();
+  formData.append('body',  contentStatex)
+  formData.append('presummary',  presummary)
+  formData.append('read_time',  read_time)
+  formData.append("heading", heading)
+  formData.append('main_image', main_image)
+  formData.append('keypoint', keypoints)
+  formData.append('thumbnail', thumbnail)
+  formData.append("schedule_story_time", schedule_story_time)
+  formData.append('status', status)
+  formData.append('_method', 'put')
+  formData.append('category_id',  category_id)
+  formData.append('writer_id',  writer_id)
+  formData.append('id',  editid)
+  let url = 'api/admin/editstory'
+  apiClient.get('/sanctum/csrf-cookie').then(()=>{
+    apiClient.post(url, formData, {
+      headers:{
+        "Authorization":"Bearer "+local.token,
+        }
+    }).then(res=>{
+      if(res.data.success){
+       
+        window.location.href = original+'/demo9/copywriter'
+  
+      }
+    })
+  })
+
+
+}
+
+
+}
+
+
+
+
+
+const onEditorStateChange = (newEditorState) => {
+  console.log(newEditorState)
+  const contentState = convertToRaw(newEditorState.getCurrentContent());
+
+  const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+  console.log('Editor Content State:', contentStatex);
+  setEditorState(newEditorState);
+};
+
+const [story_data, Setstory_data] = useState("")
+const [story_link, Setstory_link] = useState("")
+const handlestory = async (data) => {
+  Setstory_data(data);
+  let imgkit = await Imagekitupload(data);
+  // if (imgkit) {
+    console.log(imgkit);
+    Setstory_link(imgkit);
+  // } else {
+  //   console.error("ImageKit upload failed.");
+  //   // Handle error as needed
+  // }
+}
+
+
+const handleSelectStatus = ()=>{
+  if(status == 'Publish'){
+   Setstatus(1)
+  }else{
+    Setstatus(0) 
+  }
 }
   
   return (
@@ -386,8 +698,8 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                       </DropdownToggle>
                       <DropdownMenu end className="dropdown-menu-sm">
                         <div className="dropdown-content">
-                          <ul className="link-list-opt">
-                            <li>
+                          
+                           <li>
                               <a href="#">
                                 <Icon name="file-docs"></Icon>
                                 <span>Docs</span>
@@ -399,7 +711,6 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                                 <span>Text</span>
                               </a>
                             </li>
-                          </ul>
                         </div>
                       </DropdownMenu>
                     </UncontrolledDropdown>
@@ -435,22 +746,22 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                   <li>
                     <UncontrolledDropdown>
                       <DropdownToggle className="btn btn-md btn-light rounded-pill">
-                        <span>Export</span>
+                        <span>Select Status</span>
                         <Icon name="chevron-down"></Icon>
                       </DropdownToggle>
                       <DropdownMenu end className="dropdown-menu-sm">
                         <div className="dropdown-content">
                           <ul className="link-list-opt">
                             <li>
-                              <a href="#">
-                                <Icon name="file-doc"></Icon>
-                                <span>Docs</span>
+                              <a>
+                                
+                                <span onClick={(e)=>handleSelectStatus(e.target.innerText)}>Publish</span>
                               </a>
                             </li>
                             <li>
-                              <a href="#">
-                                <Icon name="file-text"></Icon>
-                                <span>Text</span>
+                              <a >
+                                
+                                <span onClick={(e)=>handleSelectStatus(e.target.innerText)}>Draft</span>
                               </a>
                             </li>
                           </ul>
@@ -492,7 +803,18 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                   <TabPane tabId="AIWriter">
                     {currentStep === "list" && (
                       <>
-                        <div className="">
+                        
+                         <Col className="mt-2">
+                          <div className="form-group">
+                            <label className="form-label">Heading</label>
+                            <div className="form-control-wrap">
+                              <input type="text"  value={heading}  onChange={(e)=>Setheading(e.target.value)} classNamePrefix="react-select"  className="form-control"/>
+                            </div>
+                          </div>
+                        </Col>
+
+
+                        <div className="mt-2">
                           <Label htmlFor="default-0" className="form-label">
                             Summary
                           </Label>
@@ -507,7 +829,26 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                             />
                           </div>
                         </div>
-                        <div className="mt-4">
+
+                        <Col className="mt-2">
+                          <div className="form-group">
+                            <label className="form-label">Main Image</label>
+                            <div className="form-control-wrap">
+                              <input type="file"   onChange={(e)=>Setmain_image(e.target.files[0])} classNamePrefix="react-select"  className="form-control"/>
+                            </div>
+                          </div>
+                        </Col>
+
+                        <Col className="mt-2">
+                          <div className="form-group">
+                            <label className="form-label">Thumnail</label>
+                            <div className="form-control-wrap">
+                              <input type="file"   onChange={(e)=>Setthumbnail(e.target.files[0])} classNamePrefix="react-select"  className="form-control"/>
+                            </div>
+                          </div>
+                        </Col>
+
+                        <div className="mt-2">
                           <Label htmlFor="default-0" className="form-label">
                             Read Time
                           </Label>
@@ -522,9 +863,45 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                             />
                           </div>
                         </div>
+
+
+                        <div className="mt-2">
+                          <Label htmlFor="default-0" className="form-label" >
+                            Key Points
+                          </Label>
+                          <div className="form-control-wrap">
+                          <ReactQuill
+                          // modules={DocumentEditor.modules}
+                          formats={DocumentEditor.formats}
+                          onChange={(e)=>Setkeypoints(e)}
+                          style={{
+                            height:"20%", 
+                            border: 'none',
+                            outline: 'none',
+                          }}
+                          value={keypoints}
+                          id="word"
+                          name="word"
+                          readOnly={false}
+                          placeholder="write your story"
+                          theme="snow"
+                          />
+                          </div>
+                        </div>
+                           
+                       
+                        <Col className="mt-2">
+                          <div className="form-group">
+                            <label className="form-label">Schedule Story Time</label>
+                            {/* <RSelect options={options} /> */}
+                            <div className="form-control-wrap">
+                              <DatePicker selected={schedule_story_time} minDate={new Date()} onChange={(date)=>Setschedule_story_time(date)}  classNamePrefix="react-select"  className="form-control" />
+                            </div>
+                          </div>
+                        </Col>
                        
                         {/* categorydata */}
-                        <Col className="mt-5">
+                        <Col className="mt-2">
                           <div className="form-group">
                             <label className="form-label">Categories</label>
                             {/* <RSelect options={options} /> */}
@@ -534,15 +911,74 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                           </div>
                         </Col>
                  
-                        <Col className="mt-5">
+                        <Col className="mt-2">
                           <div className="form-group">
                             <label className="form-label">Writer</label>
-                            {/* writerword <RSelect options={writers} /> */}
                             <div className="form-control-select">
                               <Select options={writerdata} value={writerword}  onChange={handleWriter} classNamePrefix="react-select" className='react-select-container' />
                             </div>
                           </div>
                         </Col>
+
+                        <div className="mt-2">
+                          <Label htmlFor="default-0" className="form-label">
+                            File Uploader
+                          </Label>
+                          <div className="form-control-wrap">
+                            <input
+                              className="form-control"
+                              type="file"
+                              id="default-0"
+                             
+                              onChange={(e)=>handlestory(e.target.files[0])} 
+                              placeholder="Input placeholder"
+                            />
+                          </div>
+                         {story_link&&<p style={{ fontSize:"12px" }}>copy link: {story_link} </p> }  
+                        </div>
+
+                          
+                        <Col className="mt-2">
+                          <div className="form-group">
+                          <label className="form-label">Story</label>
+                            <div className="form-control-select">
+                            {/* <ReactQuill
+                            // formats={formats}
+                            modules={modules}
+                              //  modules={DocumentEditor.modules}
+                              // formats={DocumentEditor.formats}
+                              onChange={(e)=>Setbody(e)}
+                              ref={quillRef}
+                              style={{
+                               height:"40%", 
+                                border: 'none',
+                                outline: 'none',
+                              }}
+                              theme="snow"
+                              value={body}
+                              id="word"
+                              name="word"
+                              // readOnly={false}
+                              placeholder="write your story"
+                             
+                              /> */}
+
+                              <div style={{ width:'100%', height: 200,  overflowY: 'auto' }}>
+                              <WysiwygEditor
+                                      editorState={editorState}
+                                      onEditorStateChange={onEditorStateChange}
+                                      toolbar={{
+                                        image: {
+                                          uploadCallback: uploadToImageKit,
+                                          alt: { present: true, mandatory: true },
+                                        },
+                                      }}
+                                    />
+                                  </div>
+                            </div>
+                          </div>
+                        </Col>
+                       
                         
                       </>
                     )}
@@ -739,8 +1175,8 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                   </TabPane>
                 </TabContent>
               </div>
-              <div className="nk-editor-body nk-editor-style-clean nk-editor-full">
-                {/* <Editor
+              {/* <div className="nk-editor-body nk-editor-style-clean nk-editor-full">
+                <Editor
                   apiKey="msm6bl1gm9gwg3hs5wjpi5a6icimdjzvgof4ls8bhsoh1fuv"
                   onInit={(evt, editor) => (editorRef.current = editor)}
                   initialValue={
@@ -760,7 +1196,7 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                     toolbar:
                       "undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor emoticons",
                   }}
-                /> */}
+                /> 
 
                 <ReactQuill
                modules={DocumentEditor.modules}
@@ -778,7 +1214,9 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                placeholder="write your story"
                theme="snow"
                />
-              </div>
+              </div>*/}
+
+                 
             </div>
           </div>
         </Card>
@@ -838,7 +1276,24 @@ DocumentEditor.formats = [
   "list",
   "bullet",
   "link",
-  "image",
+  // "image",
   // "video",
   // "code-block",
   ]
+
+  // DocumentEditor.modules  = {
+  //       toolbar: {
+  //     container: [
+  //       [{ header: [1, 2, false] }],
+  //       ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+  //       [{ list: 'ordered' }, { list: 'bullet' }],
+  //       ['link', 'image'],
+  //       ['clean'],
+  //     ],
+  //     handlers: {
+  //       image: this.dleImageInsert,
+  //     },
+  //   },
+  // }
+
+ 

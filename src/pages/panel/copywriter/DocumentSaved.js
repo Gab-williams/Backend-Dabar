@@ -8,7 +8,7 @@ import { Block, BlockBetween, BlockHead, BlockHeadContent, BlockTitle, BlockDes,
   DataTableHead,
   DataTableRow,
   DataTableItem } from "../../../components/Component";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { 
   DropdownMenu,
   DropdownToggle,
@@ -16,9 +16,10 @@ import {
   DropdownItem, Badge, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
 import classnames from "classnames";
 import { documents } from "./data/document";
-
 import noDocuments from "../../../images/copywriter/illustrations/no-documents.svg";
-
+import { AES, enc } from 'crypto-js';
+import axios from 'axios';
+import ReactPaginate from 'react-paginate';
 const DocumentSaved = () => {
   const urlParams = new URLSearchParams(window.location.search);
   let tabValue = urlParams.get('tab') === null ? "recent" : urlParams.get('tab').toString();
@@ -42,8 +43,22 @@ const DocumentSaved = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage, setItemPerPage] = useState(10);
   const [sort, setSortState] = useState("");
-
-
+  const [story, Setstory] = useState([])
+  const bgcolor = ['dark', 'info', 'primary', 'warning', 'secondary', 'danger', 'gray'];
+  const local =  localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+  const original = window.location.origin
+  useEffect(()=>{
+    if(local){
+      
+     }else{
+       localStorage.removeItem('thedabar')
+       window.location.href=`${original}/demo9/auth-login`;
+     }
+ 
+  },[local])
+  
+  
+  
   // Sorting data
   const sortFunc = (params) => {
     let defaultData = data;
@@ -55,7 +70,11 @@ const DocumentSaved = () => {
       setData([...sortedData]);
     }
   };
-
+  const apiClient = axios.create({
+    baseURL: "http://127.0.0.1:8000/",
+    withCredentials: true
+  });
+    const [last, Setlast] = useState(0)
   // unselects the data on mount
   useEffect(() => {
     let newData;
@@ -64,6 +83,25 @@ const DocumentSaved = () => {
       return item;
     });
     setData([...newData]);
+
+
+    let url = 'api/admin/publishedstories'
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        console.log(res)
+        if(res.data.message){
+          Setstory(res.data.message.data)
+          Setlast(res.data.message.last_page)
+        }
+      })
+    })
+
+
+
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Changing state value when searching name
@@ -89,6 +127,39 @@ const DocumentSaved = () => {
   // onChange function for searching name
   const onFilterChange = (e) => {
     setSearchText(e.target.value);
+     if(e.target.value.length > 0){
+      let url = `api/admin/searchpublishedstories?search=${e.target.value}&number=${1}`
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        console.log(res)
+        if(res.data.success){
+          Setstory(res.data.success)
+
+        }
+      })
+    })
+     }else{
+      let url = `api/admin/publishedstories?number=${1}`
+      apiClient.get('/sanctum/csrf-cookie').then(()=>{
+        apiClient.get(url,   {
+          headers:{
+            "Authorization":"Bearer "+local.token,
+            }
+        }).then(res=>{
+          console.log(res)
+          if(res.data.message){
+            Setstory(res.data.message.data)
+  
+          }
+        })
+      })
+     }
+  
+
   };
 
 
@@ -103,6 +174,77 @@ const DocumentSaved = () => {
   // Change Page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
+  const navigate = useNavigate();
+  const handleEdit =(e,id)=>{
+    e.preventDefault();
+    console.log(e.target, id)
+   navigate('/demo9/copywriter/document-editor', {state:id})
+  }
+
+  const handleCreate =(e)=>{
+    e.preventDefault();
+   
+   navigate('/demo9/copywriter/document-editor')
+  }
+
+  const handleDelete = (e, id)=>{
+    e.preventDefault(); 
+    let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+let formData = new FormData();
+formData.append('id',  id)
+let urlxs = 'api/admin/deletesinglestory'
+apiClient.get('/sanctum/csrf-cookie').then(()=>{
+  apiClient.post(urlxs, formData, {
+    headers: {
+      "Authorization": "Bearer " + local.token,
+    }
+  }).then(res=>{
+    if(res.data.message){
+      window.location.href = original+'/demo9/copywriter'
+    }
+  })
+})
+  }
+  
+ const handleNext = (ans)=>{
+  let Answer = ans.selected + 1;
+  if(onSearchText != ""){
+
+    let url = `api/admin/searchpublishedstories?search=${onSearchText}&number=${Answer}`
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        console.log(res)
+        if(res.data.success){
+          Setstory(res.data.success)
+
+        }
+      })
+    })
+
+  }else{
+
+    let url = `api/admin/publishedstories?number=${Answer}`
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        console.log(res)
+        if(res.data.message){
+          Setstory(res.data.message.data)
+
+        }
+      })
+    })
+
+  }
+
+ }
 
   return (
     <React.Fragment>
@@ -118,8 +260,8 @@ const DocumentSaved = () => {
               </BlockDes>
             </BlockHeadContent>
             <BlockHeadContent>
-              <a href="#" className="btn btn-primary d-none d-sm-inline-flex"><em className="icon ni ni-plus"></em><span>Create New</span></a>
-              <a href="#" className="btn btn-icon btn-primary d-inline-flex d-sm-none"><em className="icon ni ni-plus"></em></a>
+              <a onClick={(e)=>handleCreate(e)} className="btn btn-primary d-none d-sm-inline-flex"><em className="icon ni ni-plus"></em><span onClick={(e)=>handleCreate(e)} >Create New</span></a>
+              <a  className="btn btn-icon btn-primary d-inline-flex d-sm-none"><em className="icon ni ni-plus"></em></a>
             </BlockHeadContent>
           </BlockBetween>
         </BlockHead>
@@ -137,7 +279,7 @@ const DocumentSaved = () => {
                       toggleTab("recent");
                     }}>Recent</NavLink>
                   </NavItem>
-                  <NavItem>
+                  {/* <NavItem>
                     <NavLink tag="a"
                     href="#tab"
                     className={classnames([{"py-1": true},{ active: activeTab === "trash" }])}
@@ -145,7 +287,7 @@ const DocumentSaved = () => {
                       ev.preventDefault();
                       toggleTab("trash");
                     }}>Trash</NavLink>
-                  </NavItem>
+                  </NavItem> */}
                 </Nav>
                 <div className="card-tools me-n1">
                   <ul className="btn-toolbar gx-1">
@@ -206,7 +348,7 @@ const DocumentSaved = () => {
                     <input
                       type="text"
                       className="border-transparent form-focus-none form-control"
-                      placeholder="Search by user or email"
+                      placeholder="Search for the story"
                       value={onSearchText}
                       onChange={(e) => onFilterChange(e)}
                     />
@@ -233,18 +375,33 @@ const DocumentSaved = () => {
                       <DataTableRow></DataTableRow>
                     </DataTableHead>
                     {/*Head*/}
-                    {currentItems.length > 0
-                      ? currentItems.map((item) => {
+                    {story.length > 0
+                      ? story.map((item, index) => {
+                        const randomIndex = Math.floor(Math.random() * index + 1);
+                        // Use the random index to get a random element from the array
+                        const randomColor = bgcolor[randomIndex];
+
+                        let timez = new Date(item.created_at)
+                        const monthNames = [
+                          "Jan", "Feb", "Mar",
+                          "Apr", "May", "Jun", "Jul",
+                          "Aug", "Sept", "Oct",
+                          "Nov", "Dec"
+                        ];   
+                        const day = timez.getDate();
+                        const monthIndex = timez.getMonth();
+                        const year = timez.getFullYear();
+                        const formattedDate = `${monthNames[monthIndex]} ${day}  ${year}`;
                           return (
-                            <DataTableItem key={item.id}>
+                            <DataTableItem key={index}>
                               <DataTableRow>
-                                <div className="caption-text">{item.name}</div>
+                                <div className="caption-text">{item.heading}</div>
                               </DataTableRow>
                               <DataTableRow size="sm">
-                                <Badge color={item.tagcolor} className="badge-dim rounded-pill">{item.type}</Badge>
+                                <Badge color={randomColor} className="badge-dim rounded-pill">{item.category_id}</Badge>
                               </DataTableRow>
                               <DataTableRow size="md">
-                                <div className="sub-text d-inline-flex flex-wrap gx-2">{item.lastmodified}</div>
+                                <div className="sub-text d-inline-flex flex-wrap gx-2">{formattedDate}</div>
                               </DataTableRow>
                               <DataTableRow className="nk-tb-col-tools">
                                 <ul className="nk-tb-actions gx-1">
@@ -270,25 +427,19 @@ const DocumentSaved = () => {
                                           <li>
                                             <DropdownItem
                                               tag="a"
-                                              href="#edit"
-                                              onClick={(ev) => {
-                                                ev.preventDefault();
-                                              }}
+                                              onClick={(e) =>handleEdit(e, item.id)}
                                             >
                                               <Icon name="edit"></Icon>
-                                              <span>Rename</span>
+                                              <span>Edit</span>
                                             </DropdownItem>
                                           </li>
                                           <li>
                                             <DropdownItem
                                               tag="a"
-                                              href="#trash"
-                                              onClick={(ev) => {
-                                                ev.preventDefault();
-                                              }}
+                                              onClick={(e) =>handleDelete(e, item.id)}
                                             >
                                               <Icon name="trash"></Icon>
-                                              <span>Move to Trash</span>
+                                              <span>Delete</span>
                                             </DropdownItem>
                                           </li>
                                         </ul>
@@ -323,9 +474,26 @@ const DocumentSaved = () => {
                 </TabPane>
             </TabContent>
             <div className="card-inner border-top">
-              {currentItems.length > 0 ? (
+
+            <ReactPaginate
+                  previousLabel={'<'}
+                  nextLabel={'>'}
+                    pageCount={last}
+                    breakLabel={"..."}
+                    marginPagesDisplayed={1}
+                    pageRangeDisplayed={1}
+                    onPageChange={handleNext}
+                    containerClassName={'pagination'}
+                    // pageClassName={'page-link'}
+                    pageLinkClassName={'page-link'}
+                    previousClassName={'page-item disabled'}
+                    nextClassName={'page-item disabled'}
+                    previousLinkClassName={'page-link-prev page-link'}
+                    nextLinkClassName={'page-link-next page-link'}
+                  />
+              {/* {currentItems.length > 0 ? (
                 <PaginationComponent
-                  itemPerPage={itemPerPage}
+                  itemPerPage={8}
                   totalItems={data.length}
                   paginate={paginate}
                   currentPage={currentPage}
@@ -334,7 +502,7 @@ const DocumentSaved = () => {
                 <div className="text-center">
                   <span className="text-silent">No data found</span>
                 </div>
-              )}
+              )} */}
             </div>
           </DataTable>
         </Block>

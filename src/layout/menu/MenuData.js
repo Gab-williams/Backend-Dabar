@@ -650,7 +650,7 @@ export const copywritermenu = [
     icon: "folder-list",
     subMenu: [
       {
-        text: "Saved",
+        text: "Pushlished",
         link: "/copywriter/document-saved",
       },
       {

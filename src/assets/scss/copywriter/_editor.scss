@@ -148,12 +148,12 @@
 @include media-breakpoint-up(xl){
     .nk-editor{
         &-main{
-            flex-direction: row-reverse;
+            flex-direction:column;
             flex-wrap: nowrap;
         }
         &-base{
             flex-shrink: 0;
-            width: 360px;
+            width: 100%;
             border-left: 1px solid $border-light;
             border-bottom: 0;
         }
