@@ -662,9 +662,10 @@ const handlestory = async (data) => {
   // }
 }
 
-
-const handleSelectStatus = ()=>{
-  if(status == 'Publish'){
+const [textin, Settextin] = useState("")
+const handleSelectStatus = (text)=>{
+  Settextin(text)
+  if(text == 'Publish'){
    Setstatus(1)
   }else{
     Setstatus(0) 
@@ -746,7 +747,7 @@ const handleSelectStatus = ()=>{
                   <li>
                     <UncontrolledDropdown>
                       <DropdownToggle className="btn btn-md btn-light rounded-pill">
-                        <span>Select Status</span>
+                        <span>{textin?textin:"Select Status"} </span>
                         <Icon name="chevron-down"></Icon>
                       </DropdownToggle>
                       <DropdownMenu end className="dropdown-menu-sm">
@@ -895,7 +896,15 @@ const handleSelectStatus = ()=>{
                             <label className="form-label">Schedule Story Time</label>
                             {/* <RSelect options={options} /> */}
                             <div className="form-control-wrap">
-                              <DatePicker selected={schedule_story_time} minDate={new Date()} onChange={(date)=>Setschedule_story_time(date)}  classNamePrefix="react-select"  className="form-control" />
+                              <DatePicker 
+                              selected={schedule_story_time} 
+                              minDate={new Date()} 
+                              onChange={(date)=>Setschedule_story_time(date)} 
+                              showTimeSelect
+                              timeIntervals={15} // Optional: Set the time intervals in minutes
+                              dateFormat="MMMM d, yyyy h:mm aa"
+                              classNamePrefix="react-select" 
+                               className="form-control" />
                             </div>
                           </div>
                         </Col>

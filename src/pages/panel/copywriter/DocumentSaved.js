@@ -74,7 +74,7 @@ const DocumentSaved = () => {
     baseURL: "http://127.0.0.1:8000/",
     withCredentials: true
   });
-    const [last, Setlast] = useState(0)
+    const [last, Setlast] = useState(1)
   // unselects the data on mount
   useEffect(() => {
     let newData;

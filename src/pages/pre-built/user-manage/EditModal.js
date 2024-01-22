@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {
   Modal,
   ModalBody,
@@ -11,13 +11,60 @@ import {
   RSelect,
 } from "../../../components/Component";
 import { useForm } from "react-hook-form";
+import Select from "react-select";
 
-
-const EditModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatus}) => {
+const EditModal = ({modal,closeModal, formData, setFormData,filterStatus, local, editId, apiClient, singleobj, setModal}) => {
     useEffect(() => {
         reset(formData)
       }, [formData]);
-  const {reset, register, handleSubmit, formState: { errors } } = useForm();
+  const {reset, register,  formState: { errors } } = useForm();
+
+  const options = [
+    { value: 'Admin', label: 'Admin' },
+    { value: 'Editor', label: 'Editor' },
+  ]
+  // console.log(singleobj)
+  const [firstname, Setfirstname] = useState("")
+  const [lastname, Setlastname] = useState("")
+  const [username, Setusername] = useState("")
+  const [role, Setrole] = useState("")
+  const [phone, Setphone] = useState("")
+
+  useEffect(()=>{
+    Setfirstname(Object.keys(singleobj).length > 0?singleobj.firstname:"")
+    Setlastname(Object.keys(singleobj).length > 0?singleobj.lastname:"")
+    Setusername(Object.keys(singleobj).length > 0?singleobj.username:"")
+    Setrole(Object.keys(singleobj).length > 0?{ value:singleobj.role, label:singleobj.role }:"")
+    Setphone(Object.keys(singleobj).length > 0?singleobj.phone:"")
+  },[singleobj])
+  const handleEdit = (e)=>{
+    e.preventDefault();
+    let formData = new FormData();
+    formData.append('id', editId)
+    formData.append('firstname',  firstname)
+    formData.append('lastname',  lastname)
+    formData.append('username',  username)
+    formData.append('role',  role.value)
+    formData.append('phone', phone)
+    formData.append('_method', 'put')
+    let url = 'api/admin/edituser'
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.post(url, formData, {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        if(res.data.message){
+          
+          setModal({ edit: false }, { add: false });
+        }
+      })
+    })
+
+  }
+
+
+
   return (
             
         <Modal isOpen={modal} toggle={() => closeModal()} className="modal-dialog-centered" size="lg">
@@ -35,50 +82,41 @@ const EditModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatu
             <div className="p-2">
               <h5 className="title">Update User</h5>
               <div className="mt-4">
-                <Form className="row gy-4" onSubmit={handleSubmit(onSubmit)}>
+                <Form className="row gy-4" >
                   <Col md="6">
                     <div className="form-group">
-                      <label className="form-label">Name</label>
+                      <label className="form-label">Firstname</label>
                       <input
                         className="form-control"
                         type="text"
-                        {...register('name', { required: "This field is required" })}
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        value={firstname}
+                        onChange={(e) =>Setfirstname(e.target.value)}
                         placeholder="Enter name" />
                       {errors.name && <span className="invalid">{errors.name.message}</span>}
                     </div>
                   </Col>
                   <Col md="6">
                     <div className="form-group">
-                      <label className="form-label">Email</label>
+                      <label className="form-label">Lastname</label>
                       <input
                         className="form-control"
                         type="text"
-                        {...register('email', {
-                          required: "This field is required",
-                          pattern: {
-                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: "invalid email address",
-                          },
-                        })}
-                        value={formData.email}
-                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                       
+                        value={lastname}
+                        onChange={(e) =>Setlastname(e.target.value)}
                         placeholder="Enter email" />
                       {errors.email && <span className="invalid">{errors.email.message}</span>}
                     </div>
                   </Col>
                   <Col md="6">
                     <div className="form-group">
-                      <label className="form-label">Balance</label>
+                      <label className="form-label">Username</label>
                       <input
                         className="form-control"
-                        type="number"
-                        {...register('balance')}
-                        disabled
-                        value={parseFloat(formData.balance)}
-                        onChange={(e) => setFormData({ ...formData, balance: e.target.value })}
-                        placeholder="Balance" />
+                        type="text"
+                          value={username}
+                          onChange={(e)=>Setusername(e.target.value)}
+                        placeholder="Username" />
                       {errors.balance && <span className="invalid">{errors.balance.message}</span>}
                     </div>
                   </Col>
@@ -87,10 +125,9 @@ const EditModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatu
                       <label className="form-label">Phone</label>
                       <input
                         className="form-control"
-                        type="number"
-                        {...register('phone', { required: "This field is required" })}
-                        value={formData.phone}
-                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+                        type="text"
+                        value={phone}
+                        onChange={(e) =>Setphone(e.target.value)} />
                       {errors.phone && <span className="invalid">{errors.phone.message}</span>}
                     </div>
                   </Col>
@@ -98,21 +135,16 @@ const EditModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatu
                     <div className="form-group">
                       <label className="form-label">Status</label>
                       <div className="form-control-wrap">
-                        <RSelect
-                          options={filterStatus}
-                          value={{
-                            value: formData.status,
-                            label: formData.status,
-                          }}
-                          onChange={(e) => setFormData({ ...formData, status: e.value })}
-                        />
+                      <div className="form-control-select">
+                              <Select options={options} value={role}  onChange={(e)=>Setrole(e)} isMulti={false} classNamePrefix="react-select" className='react-select-container' />
+                            </div>
                       </div>
                     </div>
                   </Col>
                   <Col size="12">
                     <ul className="align-center flex-wrap flex-sm-nowrap gx-4 gy-2">
                       <li>
-                        <Button color="primary" size="md" type="submit">
+                        <Button color="primary" size="md" type="submit" onClick={(e)=>handleEdit(e)}>
                           Update User
                         </Button>
                       </li>

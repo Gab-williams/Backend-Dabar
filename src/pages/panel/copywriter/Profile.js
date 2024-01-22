@@ -226,7 +226,7 @@ const Profile = () => {
                     <div className="data-item" onClick={() => setModalProfile(true)}>
                       <div className="data-col">
                         <span className="data-label">Username</span>
-                        <span className="data-value">Username</span>
+                      <span className="data-value">{username}</span>
                       </div>
                       <div className="data-col data-col-end">
                         <span className="data-more">
@@ -259,7 +259,7 @@ const Profile = () => {
                     <div className="data-item" onClick={() => setModalProfile(true)}>
                       <div className="data-col">
                         <span className="data-label">Phone Number</span>
-                        <span className="data-value">Phone Number</span>
+                        <span className="data-value">{phone}</span>
                       </div>
                       <div className="data-col data-col-end">
                         <span className="data-more">

@@ -129,6 +129,7 @@ import Error504Modern from "../pages/error/504-modern";
 import Error504Classic from "../pages/error/504-classic";
 
 import Login from "../pages/auth/Login";
+import Confirm_verify from "../pages/auth/Confirm_verify";
 import Register from "../pages/auth/Register";
 import ForgotPassword from "../pages/auth/ForgotPassword";
 import Success from "../pages/auth/Success";
@@ -303,7 +304,7 @@ const Pages = () => {
             <Route path="auth-reset" element={<ForgotPassword />}></Route>
             <Route path="auth-register" element={<Register />}></Route>
             <Route path="auth-login" element={<Login />}></Route>
-
+            <Route path="confirm-verify/:email/:verification_code/:role" element={<Confirm_verify/>}></Route>
             <Route path="errors">
               <Route path="404-modern" element={<Error404Modern />}></Route>
               <Route path="404-classic" element={<Error404Classic />}></Route>

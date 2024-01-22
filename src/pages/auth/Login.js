@@ -29,6 +29,8 @@ const Login = () => {
   const [passwordmessage, Setpasswordmessage] = useState("")
   const [usertype, Setusertype] = useState("")
   const [usertypemessage, Setusertypemessage] = useState("")
+  let original = window.location.origin
+
   const apiClient = axios.create({
     baseURL: "http://127.0.0.1:8000/",
     withCredentials: true
@@ -55,7 +57,7 @@ const Login = () => {
                     Setemail("")
                     Setpassword("")
               },3000)
-              window.location.href = `http://localhost:3000/demo9/copywriter`;
+              window.location.href = `${original}/demo9/copywriter`;
             }else{
               setLoading(false)
               // res.data.error
@@ -106,7 +108,7 @@ const Login = () => {
                     Setemail("")
                     Setpassword("")
               },3000)
-              window.location.href = `http://localhost:3000/demo9/copywriter`;
+              window.location.href = `${original}/demo9/copywriter`;
             }else{
               setLoading(false)
               // res.data.error
