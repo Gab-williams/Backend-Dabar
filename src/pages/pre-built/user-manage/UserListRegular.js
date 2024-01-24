@@ -329,6 +329,47 @@ const UserListRegularPage = () => {
     })
   }
 
+  const handleDelete = (deleteid)=>{
+    // deleteuser
+    console.log(deleteid)
+    let formData = new FormData();
+formData.append('id',  deleteid)
+formData.append('_method',  'delete')
+let urlxs = 'api/admin/deleteuser'
+apiClient.get('/sanctum/csrf-cookie').then(()=>{
+  apiClient.post(urlxs, formData, {
+    headers: {
+      "Authorization": "Bearer " + local.token,
+    }
+  }).then(res=>{
+    if(res.data.success){
+      window.location.href = original+'/demo9/user-list-regular'
+    }
+  })
+})
+  }
+
+
+  const handlegetallUser = (e)=>{
+    e.preventDefault()
+    let url = `api/admin/allusercsv`
+    apiClient.get('/sanctum/csrf-cookie').then(async()=>{
+
+     let wait = await apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      })
+
+
+      const blob = new Blob([wait.data], { type: wait.headers['content-type'] });
+
+            // Create a URL for the blob
+            const urldownload = window.URL.createObjectURL(blob);
+            window.open(urldownload, '_blank');
+    })
+  }
+
   return (
     <React.Fragment>
       <Head title="User List - Regular"></Head>
@@ -354,9 +395,9 @@ const UserListRegularPage = () => {
                 <div className="toggle-expand-content" style={{ display: sm ? "block" : "none" }}>
                   <ul className="nk-block-tools g-3">
                     <li>
-                      <Button color="light" outline className="btn-white">
+                      <Button onClick={(e)=>handlegetallUser(e)} color="light" outline className="btn-white">
                         <Icon name="download-cloud"></Icon>
-                        <span>Export</span>
+                        <span onClick={(e)=>handlegetallUser(e)}>Export</span>
                       </Button>
                     </li>
                     <li className="nk-block-tools-opt">
@@ -826,13 +867,25 @@ const UserListRegularPage = () => {
                                     <li onClick={() => onEditClick(item.id)}>
                                       <DropdownItem
                                         tag="a"
-                                        href="#edit"
                                         onClick={(ev) => {
                                           ev.preventDefault();
                                         }}
                                       >
                                         <Icon name="edit"></Icon>
                                         <span>Edit</span>
+                                      </DropdownItem>
+                                    </li>
+
+
+                                    <li onClick={() =>handleDelete(item.id)}>
+                                      <DropdownItem
+                                        tag="a"
+                                        onClick={(ev) => {
+                                          ev.preventDefault();
+                                        }}
+                                      >
+                                        <Icon name="delete"></Icon>
+                                        <span>Delete</span>
                                       </DropdownItem>
                                     </li>
 

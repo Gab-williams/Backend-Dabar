@@ -7,7 +7,7 @@ import { useQuill } from "react-quilljs";
 // import "../../node_modules/react-quill/dist/quill.snow.css";
 import "../../../../node_modules/react-quill/dist/quill.snow.css"
 // import ImageKit from 'imagekit';
-
+import { FaRegCopy } from "react-icons/fa";
 import {
   Block,
   BlockBetween,
@@ -466,6 +466,7 @@ const [categorydata, Setcategorydata] = useState([])
 
 const [categoryword, Setcategoryword] = useState("") 
 const [writerword, Setwriterword] = useState("")
+const [mediapic, Setmediapic] = useState([])
 useEffect(()=>{
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
  
@@ -495,7 +496,32 @@ useEffect(()=>{
     })
   })
 
+  // mediadata
+
+  let urlxx = 'api/mediadata'
+  apiClient.get('/sanctum/csrf-cookie').then(()=>{
+    apiClient.get(urlxx,   {
+      headers:{
+        "Authorization":"Bearer "+local.token,
+        }
+    }).then(res=>{
+      if(res.data.success){
+      //  Setmediapic
+       let data = res.data.success
+         let objdata = [{name:'Select Image', file:"Select Image"}]
+       data.map((item)=>{
+        let obj = {name:item.name, file:item.file }  
+        objdata.push(obj)
+       })
+       Setmediapic(objdata)
+      } 
+    })
+
+  })
+
 },[])
+
+
 
 
 
@@ -653,16 +679,36 @@ const [story_link, Setstory_link] = useState("")
 const handlestory = async (data) => {
   Setstory_data(data);
   let imgkit = await Imagekitupload(data);
-  // if (imgkit) {
-    console.log(imgkit);
+   if (imgkit) {
+  //  console.log(data.name)
+  let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
     Setstory_link(imgkit);
-  // } else {
-  //   console.error("ImageKit upload failed.");
-  //   // Handle error as needed
-  // }
+    let formData = new FormData();
+    formData.append('name',  data.name)
+    formData.append('alter_text',  data.name)
+    formData.append('file',  imgkit)
+    let url = 'api/admin/mediainsert'
+    apiClient.get('/sanctum/csrf-cookie').then( async()=>{
+   
+   let res =   apiClient.post(url, formData, {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      })
+
+      if(res.data.message){
+
+      }
+
+
+       
+    })
+  } 
+
 }
 
 const [textin, Settextin] = useState("")
+const [selectmedia, Setselectmedia] = useState('')
 const handleSelectStatus = (text)=>{
   Settextin(text)
   if(text == 'Publish'){
@@ -671,6 +717,18 @@ const handleSelectStatus = (text)=>{
     Setstatus(0) 
   }
 }
+
+const handleMove =(e)=>{
+  console.log(e.target.value)
+  if(e.target.value != 'Select Image'){
+    Setselectmedia(e.target.value)
+  }
+}
+
+    const handleCopy = (wordx)=>{
+        navigator.clipboard.writeText(wordx)
+    }
+
   
   return (
     <React.Fragment>
@@ -929,9 +987,37 @@ const handleSelectStatus = (text)=>{
                           </div>
                         </Col>
 
+
                         <div className="mt-2">
                           <Label htmlFor="default-0" className="form-label">
-                            File Uploader
+                            Select From Existing Image
+                          </Label>
+                          <div className="form-control-wrap">
+                            <select className="form-control" onChange={handleMove} >
+                              {mediapic.map((item, index)=>{
+                                return <option key={index} value={item.file}>{item.name}</option>
+                              })} 
+                              </select>
+                          </div>
+                          {/* selectmedia */}
+                          {selectmedia&&<section style={{ display:"flex", flexDirection:"row" }}>
+                          <div style={{ width:"40px", height:"10px" }}>
+                              <img src={selectmedia} className="w-full h-full" />
+                            </div>
+                            <div style={{ display:"flex", justifyItems:"center", alignItems:"center" }}>
+                                  <button onClick={()=>handleCopy(selectmedia)}>
+                                  <FaRegCopy  />
+                                    </button>        
+                            </div>
+                          </section>}
+                          
+                         
+
+                          </div>
+
+                        <div className="mt-2">
+                          <Label htmlFor="default-0" className="form-label">
+                            Image Uploader
                           </Label>
                           <div className="form-control-wrap">
                             <input
@@ -945,6 +1031,8 @@ const handleSelectStatus = (text)=>{
                           </div>
                          {story_link&&<p style={{ fontSize:"12px" }}>copy link: {story_link} </p> }  
                         </div>
+
+                      
 
                           
                         <Col className="mt-2">

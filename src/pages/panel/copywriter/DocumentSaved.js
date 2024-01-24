@@ -95,7 +95,7 @@ const DocumentSaved = () => {
         console.log(res)
         if(res.data.message){
           Setstory(res.data.message.data)
-          Setlast(res.data.message.last_page)
+          Setlast(res.data.message.cd)
         }
       })
     })
