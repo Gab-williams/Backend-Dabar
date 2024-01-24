@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { Line, Bar, Doughnut } from "react-chartjs-2";
-
+import {analyticOvData, analyticAuData, worldMap, analyticOvDataSet2, analyticOvDataSet3, TrafficChannelDoughnutData, TrafficChannelDoughnutData2, TrafficChannelDoughnutData3,  TrafficChannelDoughnutData4, deviceStatusData, deviceStatusDataSet2, deviceStatusDataSet3, deviceStatusDataSet4} from "./AnalyticsData"
+import { VectorMap } from "react-jvectormap";
 import { Chart, CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Filler, Legend, } from "chart.js";
 Chart.register(CategoryScale, LinearScale, BarElement, ArcElement, Tooltip, Filler, Legend, );
 
-import { VectorMap } from "react-jvectormap";
-import {
-  analyticOvData,
-  analyticAuData,
-  worldMap,
-  analyticOvDataSet2,
-  analyticOvDataSet3,
-  TrafficChannelDoughnutData,
-  TrafficChannelDoughnutData2,
-  TrafficChannelDoughnutData3,
-  TrafficChannelDoughnutData4,
-  deviceStatusData,
-  deviceStatusDataSet2,
-  deviceStatusDataSet3,
-  deviceStatusDataSet4,
-} from "./AnalyticsData";
+
+// import {analyticOvData,
+//   analyticAuData,
+//   worldMap,
+//   analyticOvDataSet2,
+//   analyticOvDataSet3,
+//   TrafficChannelDoughnutData,
+//   TrafficChannelDoughnutData2,
+//   TrafficChannelDoughnutData3,
+//   TrafficChannelDoughnutData4,
+//   deviceStatusData,
+//   deviceStatusDataSet2,
+//   deviceStatusDataSet3,
+//   deviceStatusDataSet4,
+// } from "./AnalyticsData";
+
+
 
 export const AudienceLineChart = ({ state }) => {
   const [data, setData] = useState(analyticOvData);
