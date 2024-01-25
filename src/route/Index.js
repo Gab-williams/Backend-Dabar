@@ -137,6 +137,7 @@ import Success from "../pages/auth/Success";
 import Layout from "../layout/Index";
 import LayoutNoSidebar from "../layout/Index-nosidebar";
 import LayoutCopywriter from "../layout/Index-copywriter";
+import Home from "../Home";
 
 const Pages = () => {
   const location = useLocation();
@@ -146,8 +147,8 @@ const Pages = () => {
 
   return (
       <Routes>
-
-        <Route path={`${process.env.PUBLIC_URL}`} element={<LayoutCopywriter />}>
+         <Route path="/" element={<Home/>} />
+        <Route path="demo9" element={<LayoutCopywriter />}>
           <Route path="copywriter">
             <Route index element={<CopyDashboard />}></Route>
             <Route path="blank" element={<CopyBlank />}></Route>
@@ -161,10 +162,10 @@ const Pages = () => {
             <Route path="templates" element={<CopyTemplates />}></Route>
           </Route>
         </Route>
-        <Route path={`${process.env.PUBLIC_URL}/copywriter`} element={<LayoutNoSidebar />}>
+        <Route path="/demo9/copywriter" element={<LayoutNoSidebar />}>
           <Route path="payment" element={<CopyPayment />}></Route>
         </Route>
-        <Route path={`${process.env.PUBLIC_URL}`} element={<Layout />}>
+        <Route path="demo9" element={<Layout />}>
           <Route index element={<Campaign />}></Route>
           <Route path="crypto" element={<Crypto />}></Route>
           <Route path="analytics" element={<Analytics />}></Route>
@@ -299,7 +300,7 @@ const Pages = () => {
           <Route path="nioicon" element={<NioIconPage />}></Route>
           <Route path="svg-icons" element={<SVGIconPage />}></Route>
         </Route>
-        <Route path={`${process.env.PUBLIC_URL}`} element={<LayoutNoSidebar />}>
+        <Route path="demo9" element={<LayoutNoSidebar />}>
           <Route path="auth-success" element={<Success />}></Route>
             <Route path="auth-reset" element={<ForgotPassword />}></Route>
             <Route path="auth-register" element={<Register />}></Route>
