@@ -18,7 +18,7 @@ import { Spinner } from "reactstrap";
 import { useForm } from "react-hook-form";
 import { Link, useParams } from "react-router-dom";
 import axios from 'axios';
-const Confirm_verify = () => {
+const ConfirmVerify = () => {
   const [passState, setPassState] = useState(false);
   const [passStatex, setPassStatex] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -210,4 +210,4 @@ let original = window.location.origin
       <AuthFooter />
   </>;
 };
-export default Confirm_verify;
+export default ConfirmVerify;
