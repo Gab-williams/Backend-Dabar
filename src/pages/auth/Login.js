@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "../../images/logo.png";
 import LogoDark from "../../images/logo-dark.png";
 import Head from "../../layout/head/Head";
@@ -35,6 +35,18 @@ const Login = () => {
     baseURL: "http://127.0.0.1:8000/",
     withCredentials: true
   });
+
+  let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+
+  useEffect(()=>{
+    if(local){
+      
+     }else{
+
+     }
+ 
+  },[local])
+  
 
   // const {  register, handleSubmit, formState: { errors } } = useForm();
    const handleSubmit = (e)=>{

@@ -1,8 +1,11 @@
 import React from "react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "./sidebar/Sidebar";
+// import Sidebar from "./sidebar/Sidebar";
+import Sidebar from "./sidebar/SidebarCopywriter";
+// import Head from "./head/Head";
+// import Header from "./header/Header";
 import Head from "./head/Head";
-import Header from "./header/Header";
+import Header from "./header/HeaderCopywriter";
 import Footer from "./footer/Footer";
 import AppRoot from "./global/AppRoot";
 import AppMain from "./global/AppMain";
