@@ -432,6 +432,8 @@ const {quill, quillRef} = useQuill(modules, formats);
     let thumbnailx =  await Imagekitupload(thumbnail);
    let main_imagex =   await Imagekitupload(main_image);
    const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
+   let schedule_story_timex =  schedule_story_time.toISOString()
+   let stories_sectionx = JSON.stringify(stories_section)
     formData.append('body',  contentStatex)
     formData.append('presummary',  presummary)
     formData.append('read_time',  read_time)
@@ -440,10 +442,10 @@ const {quill, quillRef} = useQuill(modules, formats);
     formData.append('main_image', main_imagex)
     formData.append('keypoint', keypoints)
     formData.append('thumbnail', thumbnailx)
-    formData.append("stories_section", stories_section.value)
+    formData.append("stories_section", stories_sectionx)
     formData.append("heading", heading)
     formData.append('status', status)
-    formData.append("schedule_story_time", schedule_story_time)
+    formData.append("schedule_story_time", schedule_story_timex)
     let url = 'api/admin/createstory'
     apiClient.get('/sanctum/csrf-cookie').then(()=>{
       apiClient.post(url, formData, {
@@ -570,6 +572,7 @@ useEffect(()=>{
           "Authorization":"Bearer "+local.token,
           }
       }).then(res=>{
+         console.log("edit res", res)
         if(res.data.message){
         let answriter = writerdata.find((item)=>item.id == res.data.message.writer_id)
        let anscategory = categorydata.find((item)=>item.id == res.data.message.category_id)
@@ -591,8 +594,14 @@ useEffect(()=>{
           setEditorState(ansx)
           // let answriterx = (answriter && typeof answriter === 'object' && Object.keys(answriter).length > 0) ? answriter.value : "";
           // let anscategoryx = (anscategory && Object.keys(anscategory).length > 0) ? anscategory.value : "";
-           let ansallsection = allsection.find((item)=>item.value == res.data.message.stories_section)
-          Setstories_section(ansallsection)
+           if(typeof res.data.message.stories_section === 'string' && !Array.isArray(res.data.message.stories_section) && !(res.data.message.stories_section instanceof Object)){
+            let ansallsection = allsection.find((item)=>item.value == res.data.message.stories_section)
+            Setstories_section(ansallsection)
+           }else{
+            Setstories_section(res.data.message.stories_section)
+           }
+        
+
           Setwriterword(answriter)
            Setcategoryword(anscategory)
       
@@ -631,15 +640,18 @@ if(Object.prototype.toString.call(thumbnail) === '[object Object]' && Object.pro
   let thumbnailx =  await Imagekitupload(thumbnail);
 let main_imagex =   await Imagekitupload(main_image);
   let formData = new FormData();
+  let schedule_story_timex =  schedule_story_time.toISOString()
+  let stories_sectionx = JSON.stringify(stories_section)
+
   formData.append('body',  contentStatex)
   formData.append('presummary',  presummary)
   formData.append('read_time',  read_time)
   formData.append("heading", heading)
   formData.append('main_image', main_imagex)
-  formData.append('keypoint', keypoints)
+  // formData.append('keypoint', keypoints)
   formData.append('thumbnail', thumbnailx)
-  formData.append("schedule_story_time", schedule_story_time)
-  formData.append("stories_section", stories_section.value)
+  formData.append("schedule_story_time", schedule_story_timex)
+  formData.append("stories_section", stories_sectionx)
   formData.append('status', status)
   formData.append('_method', 'put')
   formData.append('category_id',  category_id)
@@ -661,18 +673,19 @@ let main_imagex =   await Imagekitupload(main_image);
   })
 
 }else{
-
+  let schedule_story_timex =  schedule_story_time.toISOString()
+  let stories_sectionx = JSON.stringify(stories_section)
   let formData = new FormData();
   formData.append('body',  contentStatex)
   formData.append('presummary',  presummary)
   formData.append('read_time',  read_time)
   formData.append("heading", heading)
   formData.append('main_image', main_image)
-  formData.append('keypoint', keypoints)
+  // formData.append('keypoint', keypoints)
   formData.append('thumbnail', thumbnail)
-  formData.append("schedule_story_time", schedule_story_time)
+  formData.append("schedule_story_time", schedule_story_timex)
   formData.append('status', status)
-  formData.append("stories_section", stories_section.value)
+  formData.append("stories_section", stories_sectionx)
   formData.append('_method', 'put')
   formData.append('category_id',  category_id)
   formData.append('writer_id',  writer_id)
@@ -765,7 +778,11 @@ const handleMove =(e)=>{
     const handleCopy = (wordx)=>{
         navigator.clipboard.writeText(wordx)
     }
-   console.log(stories_section)
+   
+    const handleSection =(sec)=>{
+      // console.log(sec)
+       Setstories_section(sec)
+    }
   
   return (
     <React.Fragment>
@@ -961,7 +978,28 @@ const handleMove =(e)=>{
                         </div>
 
 
-                        <div className="mt-2">
+                        <Col className="mt-2">
+                          <div className="form-group">
+                          <label className="form-label">Story</label>
+                            <div className="form-control-select">
+                     
+                              <div style={{ width:'100%', height: 200,  overflowY: 'auto' }}>
+                              <WysiwygEditor
+                                      editorState={editorState}
+                                      onEditorStateChange={onEditorStateChange}
+                                      toolbar={{
+                                        image: {
+                                          uploadCallback: uploadToImageKit,
+                                          alt: { present: true, mandatory: true },
+                                        },
+                                      }}
+                                    />
+                                  </div>
+                            </div>
+                          </div>
+                        </Col>
+
+                     {/* <div className="mt-2">
                           <Label htmlFor="default-0" className="form-label" >
                             Key Points
                           </Label>
@@ -983,7 +1021,7 @@ const handleMove =(e)=>{
                           theme="snow"
                           />
                           </div>
-                        </div>
+                        </div> */}
                            
                        
                         <Col className="mt-2">
@@ -1029,7 +1067,7 @@ const handleMove =(e)=>{
                           <div className="form-group">
                             <label className="form-label">Section</label>
                             <div className="form-control-select">
-                            <Select options={allsection} value={stories_section}  onChange={(sec)=>Setstories_section(sec)} classNamePrefix="react-select" className='react-select-container' />
+                            <Select options={allsection} value={stories_section} isMulti  onChange={(sec)=>handleSection(sec)} classNamePrefix="react-select" className='react-select-container' />
                             </div>
                           </div>
                         </Col>
@@ -1081,46 +1119,7 @@ const handleMove =(e)=>{
                       
 
                           
-                        <Col className="mt-2">
-                          <div className="form-group">
-                          <label className="form-label">Story</label>
-                            <div className="form-control-select">
-                            {/* <ReactQuill
-                            // formats={formats}
-                            modules={modules}
-                              //  modules={DocumentEditor.modules}
-                              // formats={DocumentEditor.formats}
-                              onChange={(e)=>Setbody(e)}
-                              ref={quillRef}
-                              style={{
-                               height:"40%", 
-                                border: 'none',
-                                outline: 'none',
-                              }}
-                              theme="snow"
-                              value={body}
-                              id="word"
-                              name="word"
-                              // readOnly={false}
-                              placeholder="write your story"
-                             
-                              /> */}
-
-                              <div style={{ width:'100%', height: 200,  overflowY: 'auto' }}>
-                              <WysiwygEditor
-                                      editorState={editorState}
-                                      onEditorStateChange={onEditorStateChange}
-                                      toolbar={{
-                                        image: {
-                                          uploadCallback: uploadToImageKit,
-                                          alt: { present: true, mandatory: true },
-                                        },
-                                      }}
-                                    />
-                                  </div>
-                            </div>
-                          </div>
-                        </Col>
+                  
                        
                         
                       </>
