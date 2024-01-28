@@ -35,11 +35,14 @@ import { UserContext } from "./UserContext";
 import EditModal from "./EditModal";
 import AddModal from "./AddModal";
 import { bulkActionOptions } from "../../../utils/Utils";
+import axios from 'axios';
+import { AES, enc } from 'crypto-js';
+import ReactPaginate from 'react-paginate';
 
 const UserListCompact = () => {
   const { contextData } = useContext(UserContext);
   const [data, setData] = contextData;
-
+  let original = window.location.origin
   const [sm, updateSm] = useState(false);
   const [tablesm, updateTableSm] = useState(false);
   const [onSearch, setonSearch] = useState(true);
@@ -106,9 +109,7 @@ const UserListCompact = () => {
   }, [onSearchText, setData]);
 
   // onChange function for searching name
-  const onFilterChange = (e) => {
-    setSearchText(e.target.value);
-  };
+
 
   // function to change the selected property of an item
   const onSelectChange = (e, id) => {
@@ -255,6 +256,100 @@ const UserListCompact = () => {
 
   // Change Page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const apiClient = axios.create({
+    baseURL: "https://dabarmedia.com/",
+    withCredentials: true
+  });
+  const [allsubscribe, Setallsub] = useState([])
+  const [last, Setlast] = useState(1)
+  let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+  useEffect(()=>{
+    if(local){
+
+    }else{
+      window.location.href = `${original}/demo9/copywriter`;
+    }
+
+    let url = `api/admin/allsubscribe?number=${1}`
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        if(res.data.message){
+          Setallsub(res.data.message.data)
+          Setlast(res.data.message.last_page)
+        }
+      })
+    })
+  },[])
+  
+
+  const handleNext = (ans)=>{
+    let Answer = ans.selected + 1;
+    let url = `api/admin/allsubscribe?number=${Answer}`
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        if(res.data.message){
+          Setallsub(res.data.message.data)
+        }
+      })
+    })
+  }
+
+
+  const handlegetallUser = (e)=>{
+    e.preventDefault()
+    let url = `api/admin/downloadsubscribe`
+    apiClient.get('/sanctum/csrf-cookie').then(async()=>{
+
+     let wait = await apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      })
+
+
+      const blob = new Blob([wait.data], { type: wait.headers['content-type'] });
+
+            // Create a URL for the blob
+            const urldownload = window.URL.createObjectURL(blob);
+            window.open(urldownload, '_blank');
+    })
+  }
+
+
+  const onFilterChange = (e) => {
+    setSearchText(e.target.value);
+
+    if(e.target.value.length > 0){
+    // searchsubsribe
+
+    let url = `api/admin/searchsubsribe?search=${e.target.value}`
+    apiClient.get('/sanctum/csrf-cookie').then(()=>{
+      apiClient.get(url,   {
+        headers:{
+          "Authorization":"Bearer "+local.token,
+          }
+      }).then(res=>{
+        if(res.data.success){
+          Setallsub(res.data.success.data)
+          Setlast(res.data.success.last_page)
+        }
+      })
+    })
+
+    }else{
+
+    }
+  };
+
+
 
   return (
     <React.Fragment>
@@ -283,9 +378,7 @@ const UserListCompact = () => {
                     <li>
                       <a
                         href="#export"
-                        onClick={(ev) => {
-                          ev.preventDefault();
-                        }}
+                        onClick={(e) =>handlegetallUser(e)}
                         className="btn btn-white btn-outline-light"
                       >
                         <Icon name="download-cloud"></Icon>
@@ -573,7 +666,7 @@ const UserListCompact = () => {
             <DataTableBody compact>
               <DataTableHead>
                 <DataTableRow className="nk-tb-col-check">
-                  <div className="custom-control custom-control-sm custom-checkbox notext">
+                  {/* <div className="custom-control custom-control-sm custom-checkbox notext">
                     <input
                       type="checkbox"
                       className="custom-control-input"
@@ -581,18 +674,18 @@ const UserListCompact = () => {
                       id="uid"
                     />
                     <label className="custom-control-label" htmlFor="uid"></label>
-                  </div>
+                  </div> */}
                 </DataTableRow>
-                <DataTableRow>
+                {/* <DataTableRow>
                   <span className="sub-text">User</span>
-                </DataTableRow>
+                </DataTableRow>*/}
                 <DataTableRow size="md">
-                  <span className="sub-text">Role</span>
-                </DataTableRow>
-                <DataTableRow size="sm">
                   <span className="sub-text">Email</span>
+                </DataTableRow> 
+                <DataTableRow size="sm">
+                  <span className="sub-text"></span>
                 </DataTableRow>
-                <DataTableRow size="md">
+                {/* <DataTableRow size="md">
                   <span className="sub-text">Phone</span>
                 </DataTableRow>
                 <DataTableRow size="xxl">
@@ -606,8 +699,8 @@ const UserListCompact = () => {
                 </DataTableRow>
                 <DataTableRow>
                   <span className="sub-text">Status</span>
-                </DataTableRow>
-                <DataTableRow className="nk-tb-col-tools text-end">
+                </DataTableRow> */}
+                {/* <DataTableRow className="nk-tb-col-tools text-end">
                   <UncontrolledDropdown>
                     <DropdownToggle tag="a" className="btn btn-xs btn-outline-light btn-icon dropdown-toggle">
                       <Icon name="plus"></Icon>
@@ -649,14 +742,14 @@ const UserListCompact = () => {
                       </ul>
                     </DropdownMenu>
                   </UncontrolledDropdown>
-                </DataTableRow>
+                </DataTableRow> */}
               </DataTableHead>
               {/*Head*/}
-              {currentItems.length > 0
-                ? currentItems.map((item) => {
+              {allsubscribe.length > 0
+                ? allsubscribe.map((item, index) => {
                     return (
-                      <DataTableItem key={item.id}>
-                        <DataTableRow className="nk-tb-col-check">
+                      <DataTableItem key={index}>
+                        {/* <DataTableRow className="nk-tb-col-check">
                           <div className="custom-control custom-control-sm custom-checkbox notext">
                             <input
                               type="checkbox"
@@ -683,20 +776,21 @@ const UserListCompact = () => {
                               </div>
                             </div>
                           </Link>
-                        </DataTableRow>
+                        </DataTableRow> */}
+
                         <DataTableRow size="md">
-                          <span>{item.role}</span>
+                          <span>{index + 1}</span>
                         </DataTableRow>
                         <DataTableRow size="sm">
                           <span>{item.email}</span>
                         </DataTableRow>
-                        <DataTableRow size="md">
+                        {/* <DataTableRow size="md">
                           <span>{item.phone}</span>
                         </DataTableRow>
                         <DataTableRow size="xxl">
                           <span>{item.country}</span>
-                        </DataTableRow>
-                        <DataTableRow size="lg">
+                        </DataTableRow> */}
+                        {/* <DataTableRow size="lg">
                           <ul className="list-status">
                             <li>
                               <Icon
@@ -718,8 +812,8 @@ const UserListCompact = () => {
                               <span>Email</span>
                             </li>
                           </ul>
-                        </DataTableRow>
-                        <DataTableRow size="xxl">
+                        </DataTableRow> */}
+                        {/* <DataTableRow size="xxl">
                           <span>{item.lastLogin}</span>
                         </DataTableRow>
                         <DataTableRow>
@@ -798,7 +892,7 @@ const UserListCompact = () => {
                               </UncontrolledDropdown>
                             </li>
                           </ul>
-                        </DataTableRow>
+                        </DataTableRow> */}
                       </DataTableItem>
                     );
                   })
@@ -806,12 +900,22 @@ const UserListCompact = () => {
             </DataTableBody>
             <div className="card-inner">
               {currentItems.length > 0 ? (
-                <PaginationComponent
-                  itemPerPage={itemPerPage}
-                  totalItems={data.length}
-                  paginate={paginate}
-                  currentPage={currentPage}
-                />
+             <ReactPaginate
+             previousLabel={'<'}
+             nextLabel={'>'}
+               pageCount={last}
+               breakLabel={"..."}
+               marginPagesDisplayed={1}
+               pageRangeDisplayed={1}
+               onPageChange={handleNext}
+               containerClassName={'pagination'}
+               // pageClassName={'page-link'}
+               pageLinkClassName={'page-link'}
+               previousClassName={'page-item disabled'}
+               nextClassName={'page-item disabled'}
+               previousLinkClassName={'page-link-prev page-link'}
+               nextLinkClassName={'page-link-next page-link'}
+             />
               ) : (
                 <div className="text-center">
                   <span className="text-silent">No data found</span>
@@ -821,8 +925,8 @@ const UserListCompact = () => {
           </DataTable>
         </Block>
         
-        <AddModal modal={modal.add} formData={formData} setFormData={setFormData} closeModal={closeModal} onSubmit={onFormSubmit} filterStatus={filterStatus} />
-        <EditModal modal={modal.edit} formData={editFormData} setFormData={setEditFormData} closeModal={closeEditModal} onSubmit={onEditSubmit} filterStatus={filterStatus} />
+        {/* <AddModal modal={modal.add} formData={formData} setFormData={setFormData} closeModal={closeModal} onSubmit={onFormSubmit} filterStatus={filterStatus} />
+        <EditModal modal={modal.edit} formData={editFormData} setFormData={setEditFormData} closeModal={closeEditModal} onSubmit={onEditSubmit} filterStatus={filterStatus} /> */}
         
       </Content>
     </React.Fragment>

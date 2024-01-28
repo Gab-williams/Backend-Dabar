@@ -14,14 +14,14 @@ import { AES, enc } from 'crypto-js';
 import { useForm } from "react-hook-form";
 import Select from "react-select";
 import axios from 'axios';
-const AddModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatus}) => {
+const AddModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatus, setModal}) => {
     useEffect(() => {
         reset(formData)
       }, [formData]);
   const {reset, register,  formState: { errors } } = useForm();
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
   const apiClient = axios.create({
-    baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://dabarmedia.com/",
     withCredentials: true
   });
   const [firstname, Setfirstname] = useState("")
@@ -57,6 +57,7 @@ const AddModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatus
             }
         }).then(res=>{
            if(res.data.success){
+            setModal({ edit: false }, { add: false });
 
            }
         }).catch(err=>{

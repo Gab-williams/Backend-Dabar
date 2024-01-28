@@ -96,7 +96,7 @@ const FilesBody = ({searchBar, title, viewFilter, recoveryFilter, ...props}) => 
                 </li>
                 <li>
                     <Button color="primary" onClick={() => toggleUploadModal()}>
-                    <Icon name="upload-cloud"></Icon> <span>Upload</span>
+                    <Icon name="upload-cloud"></Icon> <span>Uploadtwo</span>
                     </Button>
                 </li>
             </ul>

@@ -198,7 +198,7 @@ const DocumentEditor = () => {
   const [selectedTemplate, setSelectedTemplate] = useState();
   const [copyState, setCopyState] = useState(false);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
-
+  const [stories_section, Setstories_section] = useState("")
   const navigate = useNavigate();
   useEffect(() => {
     setActiveTab(tabValue);
@@ -216,7 +216,7 @@ const DocumentEditor = () => {
  
 
   const apiClient = axios.create({
-    baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://dabarmedia.com/",
     withCredentials: true
   });
 
@@ -235,7 +235,8 @@ const DocumentEditor = () => {
         var formData = new FormData();
         formData.append("file", file);
         formData.append("fileName", filename);
-        formData.append("publicKey", "public_JTJgA6cHXctE0Rt6gwXWQsAygjA=");
+        // public_Wl9bE4KPg58H6+uWmt7exPKW+Wc=
+        formData.append("publicKey", "public_Wl9bE4KPg58H6+uWmt7exPKW+Wc=");
             formData.append("signature", res.data.success.signature || "");
           formData.append("expire", res.data.success.expire || 0);
         formData.append("token", res.data.success.token);
@@ -301,7 +302,8 @@ const DocumentEditor = () => {
         var formData = new FormData();
         formData.append("file", data);
         formData.append("fileName", filename);
-        formData.append("publicKey", "public_JTJgA6cHXctE0Rt6gwXWQsAygjA=");
+        // tega public key for image kit: public_Wl9bE4KPg58H6+uWmt7exPKW+Wc=
+        formData.append("publicKey", "public_Wl9bE4KPg58H6+uWmt7exPKW+Wc=");
         formData.append("signature", response.data.success.signature || "");
         formData.append("expire", response.data.success.expire || 0);
         formData.append("token", response.data.success.token);
@@ -438,6 +440,7 @@ const {quill, quillRef} = useQuill(modules, formats);
     formData.append('main_image', main_imagex)
     formData.append('keypoint', keypoints)
     formData.append('thumbnail', thumbnailx)
+    formData.append("stories_section", stories_section.value)
     formData.append("heading", heading)
     formData.append('status', status)
     formData.append("schedule_story_time", schedule_story_time)
@@ -458,7 +461,19 @@ const {quill, quillRef} = useQuill(modules, formats);
 
   }
 
- 
+  useEffect(()=>{
+    const local = localStorage.getItem('thedabar')
+    if(local){
+     let answer =   JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8))
+   
+    }else{
+      localStorage.removeItem('thedabar')
+      window.location.href=`${original}/demo9/auth-login`;
+    }
+
+  },[])
+
+
 
 // storydatalist
 const [writerdata, Setwriterdata] = useState([])
@@ -467,6 +482,7 @@ const [categorydata, Setcategorydata] = useState([])
 const [categoryword, Setcategoryword] = useState("") 
 const [writerword, Setwriterword] = useState("")
 const [mediapic, Setmediapic] = useState([])
+const [allsection, Setallsection] = useState([])
 useEffect(()=>{
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
  
@@ -519,6 +535,24 @@ useEffect(()=>{
 
   })
 
+  let urlzd = 'api/admin/stories_sections'
+  apiClient.get('/sanctum/csrf-cookie').then(()=>{
+    apiClient.get(urlzd,   {
+      headers:{
+        "Authorization":"Bearer "+local.token,
+        }
+    }).then(res=>{
+      if(res.data.success){
+      
+       let jack = res.data.success.map((item)=>{
+          return {id:item.id, value:item.name, label:item.name}
+         })
+         Setallsection(jack)
+      }
+     
+    })
+  })
+
 },[])
 
 
@@ -557,7 +591,8 @@ useEffect(()=>{
           setEditorState(ansx)
           // let answriterx = (answriter && typeof answriter === 'object' && Object.keys(answriter).length > 0) ? answriter.value : "";
           // let anscategoryx = (anscategory && Object.keys(anscategory).length > 0) ? anscategory.value : "";
-          
+           let ansallsection = allsection.find((item)=>item.value == res.data.message.stories_section)
+          Setstories_section(ansallsection)
           Setwriterword(answriter)
            Setcategoryword(anscategory)
       
@@ -604,6 +639,7 @@ let main_imagex =   await Imagekitupload(main_image);
   formData.append('keypoint', keypoints)
   formData.append('thumbnail', thumbnailx)
   formData.append("schedule_story_time", schedule_story_time)
+  formData.append("stories_section", stories_section.value)
   formData.append('status', status)
   formData.append('_method', 'put')
   formData.append('category_id',  category_id)
@@ -636,6 +672,7 @@ let main_imagex =   await Imagekitupload(main_image);
   formData.append('thumbnail', thumbnail)
   formData.append("schedule_story_time", schedule_story_time)
   formData.append('status', status)
+  formData.append("stories_section", stories_section.value)
   formData.append('_method', 'put')
   formData.append('category_id',  category_id)
   formData.append('writer_id',  writer_id)
@@ -728,7 +765,7 @@ const handleMove =(e)=>{
     const handleCopy = (wordx)=>{
         navigator.clipboard.writeText(wordx)
     }
-
+   console.log(stories_section)
   
   return (
     <React.Fragment>
@@ -987,6 +1024,15 @@ const handleMove =(e)=>{
                           </div>
                         </Col>
 
+
+                        <Col className="mt-2">
+                          <div className="form-group">
+                            <label className="form-label">Section</label>
+                            <div className="form-control-select">
+                            <Select options={allsection} value={stories_section}  onChange={(sec)=>Setstories_section(sec)} classNamePrefix="react-select" className='react-select-container' />
+                            </div>
+                          </div>
+                        </Col>
 
                         <div className="mt-2">
                           <Label htmlFor="default-0" className="form-label">

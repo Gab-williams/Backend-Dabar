@@ -48,7 +48,7 @@ const Profile = () => {
    const [profile, Setprofile] = useState('')
 
   const apiClient = axios.create({
-    baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://dabarmedia.com/",
     withCredentials: true
   });
   const onInputChange = (e) => {
@@ -68,7 +68,8 @@ const Profile = () => {
   const [role, Setrole] = useState("")
   const [phone, Setphone] = useState('')
   const [messagex, Setmessagex] = useState('')
-
+   const [firstname, Setfirstname] = useState('')
+   const [lastname, Setlastname] = useState("")
   useEffect(()=>{
     let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
     Setlocalx(local)
@@ -102,7 +103,9 @@ const Profile = () => {
   },[])
 
   useEffect(()=>{
-    Setfullname(Object.keys(userprofile).length > 0?userprofile.name:"")
+    Setfirstname(Object.keys(userprofile).length > 0?userprofile.firstname:"")
+    Setlastname(Object.keys(userprofile).length > 0?userprofile.lastname:"")
+    Setfullname(Object.keys(userprofile).length > 0?userprofile.firstname+" "+userprofile.lastname:"")
     Setrole(Object.keys(userprofile).length > 0?userprofile.role:"")
     Setusername(Object.keys(profile).length > 0?profile.username:"")
     Setphone(Object.keys(profile).length > 0?profile.phone:"")
@@ -117,7 +120,8 @@ const Profile = () => {
   let headers = new Headers();
   headers.append('Content-Type', 'application/json')
   headers.append('Authorization', 'Bearer ' + localx.token)
-  formdata.append('name',  fullname)
+  formdata.append('firstname',  firstname)
+  formdata.append('lastname',  lastname)
   formdata.append('username',  username)
   formdata.append('phone', phone)
   formdata.append('user_id', localx.id)
@@ -145,7 +149,8 @@ const Profile = () => {
   let headers = new Headers();
   headers.append('Content-Type', 'application/json');
   headers.append('Authorization', 'Bearer ' + localx.token);
-  formData.append('name', fullname);
+  formData.append('firstname',  firstname)
+  formData.append('lastname',  lastname)
   formData.append('username', username);
   formData.append('phone', phone);
   formData.append("_method", "put");
@@ -215,7 +220,7 @@ const Profile = () => {
                     <div className="data-item" onClick={() => setModalProfile(true)}>
                       <div className="data-col">
                         <span className="data-label">Full Name</span>
-                        <span className="data-value">{Object.keys(userprofile).length > 0?userprofile.name:""}</span>
+                        <span className="data-value">{Object.keys(userprofile).length > 0?userprofile.lastname+" "+userprofile.firstname:""}</span>
                       </div>
                       <div className="data-col data-col-end">
                         <span className="data-more">
@@ -388,19 +393,37 @@ const Profile = () => {
                               <Col md="6">
                                 <div className="form-group">
                                   <label className="form-label" htmlFor="full-name">
-                                    Full Name
+                                    firstname
                                   </label>
                                   <input
                                     type="text"
                                     id="full-name"
                                     className="form-control"
                                     name="name"
-                                    onChange={(e) =>Setfullname(e.target.value)}
-                                    value={fullname}
+                                    onChange={(e) =>Setfirstname(e.target.value)}
+                                    value={firstname}
                                     placeholder="Enter Full name"
                                   />
                                 </div>
                               </Col>
+
+                              <Col md="6">
+                                <div className="form-group">
+                                  <label className="form-label" htmlFor="full-name">
+                                    lastname
+                                  </label>
+                                  <input
+                                    type="text"
+                                    id="full-name"
+                                    className="form-control"
+                                    name="name"
+                                    onChange={(e) =>Setlastname(e.target.value)}
+                                    value={lastname}
+                                    placeholder="Enter Full name"
+                                  />
+                                </div>
+                              </Col>
+
                               <Col md="6">
                                 <div className="form-group">
                                   <label className="form-label" htmlFor="display-name">

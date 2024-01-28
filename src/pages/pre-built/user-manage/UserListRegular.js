@@ -73,7 +73,7 @@ const UserListRegularPage = () => {
   const [userdata, Setuserdata] = useState([])
    const [last, Setlast] = useState(1)
   const apiClient = axios.create({
-    baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://dabarmedia.com/",
     withCredentials: true
   });
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
@@ -820,7 +820,7 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                           </ul>
                         </DataTableRow>
                         <DataTableRow size="lg">
-                          <span>{item.status?"Active":"InActive"}</span>
+                          <span>{item.status == 1?"Active":"InActive"}</span>
                         </DataTableRow>
                         {/* <DataTableRow size="md">
                           <span
@@ -946,7 +946,7 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
           </DataTable>
         </Block>
         {/*  setModal({ edit: false }, { add: false }); */}
-        <AddModal modal={modal.add} formData={formData} setFormData={setFormData} closeModal={closeModal} onSubmit={onFormSubmit} filterStatus={filterStatus} />
+        <AddModal modal={modal.add} formData={formData} setFormData={setFormData} closeModal={closeModal} onSubmit={onFormSubmit} filterStatus={filterStatus} setModal={setModal} />
         <EditModal modal={modal.edit} formData={editFormData} setFormData={setEditFormData} closeModal={closeEditModal} onSubmit={onEditSubmit}  filterStatus={filterStatus} local={local} editId={editId} apiClient={apiClient} singleobj={singleobj} setModal={setModal}/>
         
       </Content>

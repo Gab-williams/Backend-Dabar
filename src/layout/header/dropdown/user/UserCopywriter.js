@@ -16,7 +16,7 @@ const User = () => {
   const original = window.location.origin
 
   const apiClient = axios.create({
-    baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://dabarmedia.com/",
     withCredentials: true
   });
   useEffect(()=>{
@@ -25,8 +25,8 @@ const User = () => {
      let answer =   JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8))
      Setuserinfo(userinfo=>answer)
     }else{
-      localStorage.removeItem('thedabar')
-      window.location.href=`${original}/demo9/auth-login`;
+      // localStorage.removeItem('thedabar')
+      // window.location.href=`${original}/demo9/auth-login`;
     }
   },[userinfo])
 
@@ -83,10 +83,10 @@ const User = () => {
         </div>
         <div className="dropdown-inner">
           <LinkList>
-            <LinkItem link="/copywriter/profile" icon="user-alt" onClick={toggle}>
+            <LinkItem link="/demo9/copywriter/profile" icon="user-alt" onClick={toggle}>
               View Profile
             </LinkItem>
-            <LinkItem link="/copywriter/history" icon="clock" onClick={toggle}>
+            <LinkItem link="/demo9/copywriter/history" icon="clock" onClick={toggle}>
               History
             </LinkItem>
             <li>

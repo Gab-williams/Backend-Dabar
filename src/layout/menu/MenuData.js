@@ -643,7 +643,7 @@ export const copywritermenu = [
   {
     text: "Dashboard",
     icon: "presentation",
-    link: "/copywriter",
+    link: "/demo9/copywriter",
   },
   {
     text: "Documents",
@@ -651,22 +651,22 @@ export const copywritermenu = [
     subMenu: [
       {
         text: "Pushlished",
-        link: "/copywriter/document-saved",
+        link: "/demo9/copywriter/document-saved",
       },
       {
         text: "Drafts",
-        link: "/copywriter/document-drafts",
+        link: "/demo9/copywriter/document-drafts",
       },
       {
         text: "Categories",
-        link: "/copywriter/document-categories",
+        link: "/demo9/copywriter/document-categories",
       },
     ],
   },
   {
     text: "Editor",
     icon: "edit",
-    link: "/copywriter/document-editor",
+    link: "/demo9/copywriter/document-editor",
   },
   {
     icon: "users",
@@ -674,61 +674,66 @@ export const copywritermenu = [
     active: true,
     subMenu: [
       {
-        text: "User List - Regular",
-        link: "/user-list-regular",
+        text: "User List",
+        link: "/demo9/user-list-regular",
       },
       {
-        text: "User List - Compact",
-        link: "/user-list-compact",
+        text: "Email List",
+        link: "/demo9/user-list-compact",
       },
-      {
-        text: "User Details - Regular",
-        link: "/user-details-regular/1",
-      },
-      {
-        text: "User Profile - Regular",
-        link: "/user-profile-regular",
-      },
-      {
-        text: "User Contact - Card",
-        link: "/user-contact-card",
-      },
+      // {
+      //   text: "User Details - Regular",
+      //   link: "/demo9/user-details-regular/1",
+      // },
+      // {
+      //   text: "User Profile - Regular",
+      //   link: "/demo9/user-profile-regular",
+      // },
+      // {
+      //   text: "User Contact - Card",
+      //   link: "/demo9/user-contact-card",
+      // },
     ],
   },
-  {
-    text: "History",
-    icon: "clock",
-    link: "/copywriter/history",
-  },
-  {
-    text: "Pricing Plans",
-    icon: "sign-usdc",
-    link: "/copywriter/pricing-plans",
-  },
+  // {
+  //   text: "History",
+  //   icon: "clock",
+  //   link: "demo9/copywriter/history",
+  // },
+  // {
+  //   text: "Pricing Plans",
+  //   icon: "sign-usdc",
+  //   link: "/copywriter/pricing-plans",
+  // },
   {
     text: "Profile",
     icon: "user",
     link: "/copywriter/profile",
   },
   {
-    text: "Payments",
-    icon: "wallet",
-    newTab: true,
-    link: "/copywriter/payment",
+    text: "Media",
+    icon: "music",
+    link: "/demo9/image-gallery",
   },
-  {
-    heading: "Return To",
-  },
-  {
-    text: "Main Dashboard",
-    icon: "dashlite-alt",
-    link: "/",
-  },
-  {
-    text: "All Components",
-    icon: "layers-fill",
-    link: "/components",
-  },
+  // {
+  //   text: "Payments",
+  //   icon: "wallet",
+  //   newTab: true,
+  //   link: "/copywriter/payment",
+  // },
+  // {
+  //   heading: "Return To",
+  // },
+  // {
+  //   text: "Main Dashboard",
+  //   icon: "dashlite-alt",
+  //   link: "/",
+  // },
+  // {
+  //   text: "All Components",
+  //   icon: "layers-fill",
+  //   link: "/components",
+  // },
 ];
 
 export const copywriterheadermenu = [
@@ -737,11 +742,11 @@ export const copywriterheadermenu = [
     subMenu: [
       {
         text: "Saved",
-        link: "/copywriter/document-saved",
+        link: "/demo9/copywriter/document-saved",
       },
       {
         text: "Drafts",
-        link: "/copywriter/document-drafts",
+        link: "/demo9/copywriter/document-drafts",
       },
     ],
   },

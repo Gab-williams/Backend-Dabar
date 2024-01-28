@@ -83,11 +83,11 @@ const Menu = ({ sidebarToggle, mobileView, menuData }) => {
       {menuData.map((item) =>
         <MenuItem
           key={item.text}
-          link={item.link}
+          // link={item.link}
           icon={item.icon}
           text={item.text}
           badge={item.badge}
-          sub={item.subMenu}
+          // sub={item.subMenu}
           sidebarToggle={sidebarToggle}
           mobileView={mobileView}
         />

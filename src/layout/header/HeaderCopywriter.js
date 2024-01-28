@@ -57,9 +57,9 @@ const Header = ({ fixed, className, ...props }) => {
           </div>
           <div className="nk-header-tools">
             <ul className="nk-quick-nav">
-              <li className="notification-dropdown me-n1">
+              {/* <li className="notification-dropdown me-n1">
                 <Notification />
-              </li>
+              </li> */}
               <li className="language-dropdown d-none d-sm-block me-n1" >
                 <LanguageHead />
               </li>

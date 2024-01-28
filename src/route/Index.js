@@ -138,6 +138,7 @@ import Layout from "../layout/Index";
 import LayoutNoSidebar from "../layout/Index-nosidebar";
 import LayoutCopywriter from "../layout/Index-copywriter";
 import Home from "../Home";
+import ResetPassword  from "../pages/auth/ResetPassword"
 
 const Pages = () => {
   const location = useLocation();
@@ -147,7 +148,10 @@ const Pages = () => {
 
   return (
       <Routes>
-         <Route path="/" element={<Home/>} />
+        {/* Campaign is the home */}
+        <Route path="/" element={<LayoutNoSidebar />}>
+        <Route index element={<Login />}></Route>
+        </Route>
         <Route path="demo9" element={<LayoutCopywriter />}>
           <Route path="copywriter">
             <Route index element={<CopyDashboard />}></Route>
@@ -306,6 +310,7 @@ const Pages = () => {
             <Route path="auth-register" element={<Register />}></Route>
             <Route path="auth-login" element={<Login />}></Route>
             <Route path="confirm-verify/:email/:verification_code/:role" element={<ConfirmVerify/>}></Route>
+            <Route path="resetpassword/:email" element={<ResetPassword/>}></Route>
             <Route path="errors">
               <Route path="404-modern" element={<Error404Modern />}></Route>
               <Route path="404-classic" element={<Error404Classic />}></Route>

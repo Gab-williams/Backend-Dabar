@@ -32,7 +32,7 @@ const Login = () => {
   let original = window.location.origin
 
   const apiClient = axios.create({
-    baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://dabarmedia.com/",
     withCredentials: true
   });
 
@@ -160,6 +160,10 @@ const Login = () => {
 
    }
 
+   const handleNext = ()=>{
+    window.location.href = `${original}/demo9/auth-reset`
+   }
+
   return <>
     <Head title="Login" />
       <Block className="nk-block-middle nk-auth-body  wide-xs">
@@ -235,9 +239,9 @@ const Login = () => {
                 <label className="form-label" htmlFor="password">
                   Passcode
                 </label>
-                <Link className="link link-primary link-sm" to={`${process.env.PUBLIC_URL}/auth-reset`}>
-                  Forgot Code?
-                </Link>
+                <a className="link link-primary link-sm"  >
+                Forgotten Password <a onClick={handleNext}>Click here to Reset</a>
+                </a >
               </div>
               <div className="form-control-wrap">
                 <a
@@ -270,12 +274,11 @@ const Login = () => {
               </Button>
             </div>
           </Form>
-          <div className="form-note-s2 text-center pt-4">
-            New on our platform? <Link to={`${process.env.PUBLIC_URL}/auth-register`}>Create an account</Link>
-          </div>
+          {/* <div className="form-note-s2 text-center pt-4">
+            Forgotten Password <a onClick={handleNext}>Click here to Reset</a>
+          </div> */}
           <div className="text-center pt-4 pb-3">
             <h6 className="overline-title overline-title-sap">
-              <span>OR</span>
             </h6>
           </div>
           {/* <ul className="nav justify-center gx-4">
