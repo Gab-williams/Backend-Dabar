@@ -444,7 +444,7 @@ const {quill, quillRef} = useQuill(modules, formats);
     e.preventDefault();
     let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
     let formData = new FormData();
-    let thumbnailx =  await Imagekitupload(thumbnail);
+    // let thumbnailx =  await Imagekitupload(thumbnail);
    let main_imagex =   await Imagekitupload(main_image);
    const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
    let schedule_story_timex =  schedule_story_time.toISOString()
@@ -642,12 +642,18 @@ useEffect(()=>{
           setEditorState(ansx)
           // let answriterx = (answriter && typeof answriter === 'object' && Object.keys(answriter).length > 0) ? answriter.value : "";
           // let anscategoryx = (anscategory && Object.keys(anscategory).length > 0) ? anscategory.value : "";
-           if(typeof res.data.message.stories_section === 'string' && !Array.isArray(res.data.message.stories_section) && !(res.data.message.stories_section instanceof Object)){
-            let ansallsection = allsection.find((item)=>item.value == res.data.message.stories_section)
-            Setstories_section(ansallsection)
-           }else{
-            Setstories_section(res.data.message.stories_section)
-           }
+          let section_storiesans =  JSON.parse(res.data.message.stories_section)
+          Setstories_section(section_storiesans)
+
+          //  if(typeof res.data.message.stories_section === 'string' && !Array.isArray(res.data.message.stories_section) && !(res.data.message.stories_section instanceof Object)){
+          //   let ansallsection = allsection.find((item)=>item.value == res.data.message.stories_section)
+          //   Setstories_section(ansallsection)
+          //  }else{
+          //   res.data.message.stories_section.map((item)=>{
+          //     Setstories_section(item)
+          //   })
+            
+          //  }
         
 
           Setwriterword(answriter)
@@ -677,16 +683,18 @@ const handleWriter = (writerword)=>{
   let info = writerdata.find((item)=>item.value == selectedValue)
   Setwriter_id(info.id)
 }
-// 
+//
+console.log(main_image) 
 const handleEdit = async(e)=>{
 e.preventDefault();
 let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
 
 
 const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
-if(Object.prototype.toString.call(main_image) === '[object Object]'){
-  let thumbnailx =  await Imagekitupload(thumbnail);
+if(Object.keys(main_image).length > 0){
+  // let thumbnailx =  await Imagekitupload(thumbnail);
 let main_imagex =   await Imagekitupload(main_image);
+console.log(main_imagex)
   let formData = new FormData();
   let schedule_story_timex =  schedule_story_time.toISOString()
   let stories_sectionx = JSON.stringify(stories_section)
@@ -713,7 +721,7 @@ let main_imagex =   await Imagekitupload(main_image);
         }
     }).then(res=>{
       if(res.data.success){
-        Setmessage(res.data.success)
+        Setmessage("Edit Successful")
         setModalSuccess(true)
         // window.location.href = original+'/demo9/copywriter'
   
@@ -749,7 +757,10 @@ let main_imagex =   await Imagekitupload(main_image);
         Setmessage(error.schedule_story_time[0])
         setModalFail(true)
       }
-
+      else if(error.main_image){
+        Setmessage(error.main_image[0])
+        setModalFail(true)
+      }
 
     })
 
@@ -781,6 +792,7 @@ let main_imagex =   await Imagekitupload(main_image);
         }
     }).then(res=>{
       if(res.data.success){
+        Setmessage("Edit Successful")
         setModalSuccess(true)
         // window.location.href = original+'/demo9/copywriter'
   
@@ -814,6 +826,10 @@ let main_imagex =   await Imagekitupload(main_image);
         setModalFail(true)
       }else if(error.schedule_story_time){
         Setmessage(error.schedule_story_time[0])
+        setModalFail(true)
+      }
+      else if(error.main_image){
+        Setmessage(error.main_image[0])
         setModalFail(true)
       }
 
