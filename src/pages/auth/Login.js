@@ -14,7 +14,7 @@ import {
   Icon,
   PreviewCard,
 } from "../../components/Component";
-import { Form, Spinner, Alert } from "reactstrap";
+import { Form, Spinner, Alert, Modal, ModalBody, ModalFooter } from "reactstrap";
 import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import axios from 'axios';
@@ -30,6 +30,12 @@ const Login = () => {
   const [usertype, Setusertype] = useState("")
   const [usertypemessage, Setusertypemessage] = useState("")
   let original = window.location.origin
+
+  const [modalSuccess, setModalSuccess] = useState(false);
+  const [message, Setmessage] = useState("")
+  const [modalFail, setModalFail] = useState(false);
+  const toggleSuccess = () => setModalSuccess(!modalSuccess);
+  const toggleModalFail = () => setModalFail(!modalFail);
 
   const apiClient = axios.create({
     baseURL: "https://dabarmedia.com/",
@@ -65,6 +71,8 @@ const Login = () => {
               setLoading(false)
               const encrypt= AES.encrypt(JSON.stringify(res.data.data), 'TheDabar').toString();
               localStorage.setItem('thedabar', encrypt);
+              Setmessage(res.data.message)
+              setModalSuccess(true)
               setTimeout(()=>{
                     Setemail("")
                     Setpassword("")
@@ -75,6 +83,8 @@ const Login = () => {
               // res.data.error
               Setemailmessage(res.data.error)
               Setpasswordmessage(res.data.error)
+              Setmessage(res.data.error)
+              setModalFail(true)
               setTimeout(()=>{
                 Setemailmessage("")
                 Setpasswordmessage("")
@@ -86,12 +96,16 @@ const Login = () => {
             if(error.email){
               setLoading(false)
               Setemailmessage(error.email[0])
+              Setmessage(error.email[0])
+              setModalFail(true)
               setTimeout(()=>{
                 Setemailmessage("")
                 },3000)
             }else if (error.password){
               setLoading(false)
               Setpasswordmessage(error.password[0])
+              Setmessage(error.password[0])
+              setModalFail(true)
               setTimeout(()=>{
                 Setpasswordmessage("")
                 },3000)
@@ -241,8 +255,8 @@ const Login = () => {
                 <label className="form-label" htmlFor="password">
                   Passcode
                 </label>
-                <a className="link link-primary link-sm"  >
-                Forgotten Password <a onClick={handleNext}>Click here to Reset</a>
+                <a className="link link-primary link-sm" style={{ cursor:"pointer" }} >
+                <a onClick={handleNext}> Forgotten Password</a>
                 </a >
               </div>
               <div className="form-control-wrap">
@@ -309,6 +323,61 @@ const Login = () => {
           </ul> */}
         </PreviewCard>
       </Block>
+
+      <Modal isOpen={modalSuccess} toggle={toggleSuccess}>
+                  <ModalBody className="modal-body-lg text-center">
+                    <div className="nk-modal">
+                      <Icon className="nk-modal-icon icon-circle icon-circle-xxl ni ni-check bg-success"></Icon>
+                      <h4 className="nk-modal-title">{message?message:"Successful"}  </h4>
+                      <div className="nk-modal-text">
+                        {/* <div className="caption-text">
+                           successful
+                        </div> */}
+                        {/* <span className="sub-text-sm">
+                          Learn when you reciveve bitcoin in your wallet.{" "}
+                          <a href="#link" onClick={(ev) => ev.preventDefault()}>
+                            {" "}
+                            Click here
+                          </a>
+                        </span> */}
+                      </div>
+                      <div className="nk-modal-action">
+                        <Button color="primary" size="lg" className="btn-mw" onClick={toggleSuccess}>
+                          OK
+                        </Button>
+                      </div>
+                    </div>
+                  </ModalBody>
+                  <ModalFooter className="bg-light">
+                    <div className="text-center w-100">
+                      {/* <p>
+                        Earn upto $25 for each friend your refer!{" "}
+                        <a href="#invite" onClick={(ev) => ev.preventDefault()}>
+                          Invite friends
+                        </a>
+                      </p> */}
+                    </div>
+                  </ModalFooter>
+                </Modal>
+
+
+                <Modal isOpen={modalFail} toggle={toggleModalFail}>
+                  <ModalBody className="modal-body-lg text-center">
+                    <div className="nk-modal">
+                      <Icon className="nk-modal-icon icon-circle icon-circle-xxl ni ni-cross bg-danger"></Icon>
+                      <h4 className="nk-modal-title"> {message?message:"Unable to Process!"} </h4>
+                      <div className="nk-modal-text">
+                     
+                        {/* <p className="text-soft">If you need help please contact us at (855) 485-7373.</p> */}
+                      </div>
+                      <div className="nk-modal-action mt-5">
+                        <Button color="light" size="lg" className="btn-mw" onClick={toggleModalFail}>
+                          Return
+                        </Button>
+                      </div>
+                    </div>
+                  </ModalBody>
+                </Modal>
       <AuthFooter />
   </>;
 };

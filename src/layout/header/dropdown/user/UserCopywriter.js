@@ -107,9 +107,9 @@ const User = () => {
         <div className="dropdown-inner">
           <LinkList>
           {/* href={`${process.env.PUBLIC_URL}/auth-login`} */}
-            <a onClick={handleLogout}>
+            <a  style={{ cursor:"pointer" }} onClick={handleLogout}>
               <Icon name="signout"></Icon>
-              <span>Sign Out</span>
+              <span style={{ cursor:"pointer" }} onClick={handleLogout} >Sign Out</span>
             </a>
           </LinkList>
         </div>

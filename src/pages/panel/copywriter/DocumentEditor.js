@@ -34,6 +34,15 @@ import {
   TabContent,
   TabPane,
   Label,
+  Modal,
+  ModalBody,
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  DataTableRow,
+  PreviewCard,
+  DataTableItem, 
+  ModalFooter
 } from "reactstrap";
 import classnames from "classnames";
 // import { Editor } from "@tinymce/tinymce-react";
@@ -199,6 +208,12 @@ const DocumentEditor = () => {
   const [copyState, setCopyState] = useState(false);
   const [editorState, setEditorState] = useState(() => EditorState.createEmpty());
   const [stories_section, Setstories_section] = useState("")
+  const [modalSuccess, setModalSuccess] = useState(false);
+  const [message, Setmessage] = useState("")
+  const [modalFail, setModalFail] = useState(false);
+  const toggleSuccess = () => setModalSuccess(!modalSuccess);
+  const toggleModalFail = () => setModalFail(!modalFail);
+
   const navigate = useNavigate();
   useEffect(() => {
     setActiveTab(tabValue);
@@ -440,8 +455,8 @@ const {quill, quillRef} = useQuill(modules, formats);
     formData.append('category_id',  category_id)
     formData.append('writer_id',  writer_id)
     formData.append('main_image', main_imagex)
-    formData.append('keypoint', keypoints)
-    formData.append('thumbnail', thumbnailx)
+    // formData.append('keypoint', keypoints)
+    // formData.append('thumbnail', thumbnailx)
     formData.append("stories_section", stories_sectionx)
     formData.append("heading", heading)
     formData.append('status', status)
@@ -453,11 +468,44 @@ const {quill, quillRef} = useQuill(modules, formats);
           "Authorization":"Bearer "+local.token,
           }
       }).then(res=>{
-        console.log(res)
+        // console.log(res)
         if(res.data.success){
-          window.location.href = original+'/demo9/copywriter'
-
+          // window.location.href = original+'/demo9/copywriter'
+          setModalSuccess(true)
         }
+      }).catch(err=>{
+        // setModalFail
+        
+        let error = err.response.data.errors
+        if(error.body){
+          Setmessage(error.body[0])
+          setModalFail(true)
+        }else if(error.presummary){
+          Setmessage(error.presummary[0])
+          setModalFail(true)
+        }else if(error.read_time){
+          Setmessage(error.read_time[0])
+          setModalFail(true)
+        }else if(error.category_id){
+          Setmessage(error.category_id[0])
+          setModalFail(true)
+        }else if(error.writer_id){
+          Setmessage(error.writer_id[0])
+          setModalFail(true)
+        }else if(error.heading){
+          Setmessage(error.heading[0])
+          setModalFail(true)
+        }else if(error.stories_section){
+          Setmessage(error.stories_section[0])
+          setModalFail(true)
+        }else if(error.status){
+          Setmessage(error.status[0])
+          setModalFail(true)
+        }else if(error.schedule_story_time){
+          Setmessage(error.schedule_story_time[0])
+          setModalFail(true)
+        }
+
       })
     })
 
@@ -636,7 +684,7 @@ let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage
 
 
 const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
-if(Object.prototype.toString.call(thumbnail) === '[object Object]' && Object.prototype.toString.call(main_image) === '[object Object]'){
+if(Object.prototype.toString.call(main_image) === '[object Object]'){
   let thumbnailx =  await Imagekitupload(thumbnail);
 let main_imagex =   await Imagekitupload(main_image);
   let formData = new FormData();
@@ -649,7 +697,7 @@ let main_imagex =   await Imagekitupload(main_image);
   formData.append("heading", heading)
   formData.append('main_image', main_imagex)
   // formData.append('keypoint', keypoints)
-  formData.append('thumbnail', thumbnailx)
+  // formData.append('thumbnail', thumbnailx)
   formData.append("schedule_story_time", schedule_story_timex)
   formData.append("stories_section", stories_sectionx)
   formData.append('status', status)
@@ -665,11 +713,46 @@ let main_imagex =   await Imagekitupload(main_image);
         }
     }).then(res=>{
       if(res.data.success){
-       
-        window.location.href = original+'/demo9/copywriter'
+        Setmessage(res.data.success)
+        setModalSuccess(true)
+        // window.location.href = original+'/demo9/copywriter'
   
       }
+    }).catch(err=>{
+
+      let error = err.response.data.errors
+      if(error.body){
+        Setmessage(error.body[0])
+        setModalFail(true)
+      }else if(error.presummary){
+        Setmessage(error.presummary[0])
+        setModalFail(true)
+      }else if(error.read_time){
+        Setmessage(error.read_time[0])
+        setModalFail(true)
+      }else if(error.category_id){
+        Setmessage(error.category_id[0])
+        setModalFail(true)
+      }else if(error.writer_id){
+        Setmessage(error.writer_id[0])
+        setModalFail(true)
+      }else if(error.heading){
+        Setmessage(error.heading[0])
+        setModalFail(true)
+      }else if(error.stories_section){
+        Setmessage(error.stories_section[0])
+        setModalFail(true)
+      }else if(error.status){
+        Setmessage(error.status[0])
+        setModalFail(true)
+      }else if(error.schedule_story_time){
+        Setmessage(error.schedule_story_time[0])
+        setModalFail(true)
+      }
+
+
     })
+
   })
 
 }else{
@@ -682,7 +765,7 @@ let main_imagex =   await Imagekitupload(main_image);
   formData.append("heading", heading)
   formData.append('main_image', main_image)
   // formData.append('keypoint', keypoints)
-  formData.append('thumbnail', thumbnail)
+  // formData.append('thumbnail', thumbnail)
   formData.append("schedule_story_time", schedule_story_timex)
   formData.append('status', status)
   formData.append("stories_section", stories_sectionx)
@@ -698,10 +781,42 @@ let main_imagex =   await Imagekitupload(main_image);
         }
     }).then(res=>{
       if(res.data.success){
-       
-        window.location.href = original+'/demo9/copywriter'
+        setModalSuccess(true)
+        // window.location.href = original+'/demo9/copywriter'
   
       }
+    }).catch(err=>{
+
+      let error = err.response.data.errors
+      if(error.body){
+        Setmessage(error.body[0])
+        setModalFail(true)
+      }else if(error.presummary){
+        Setmessage(error.presummary[0])
+        setModalFail(true)
+      }else if(error.read_time){
+        Setmessage(error.read_time[0])
+        setModalFail(true)
+      }else if(error.category_id){
+        Setmessage(error.category_id[0])
+        setModalFail(true)
+      }else if(error.writer_id){
+        Setmessage(error.writer_id[0])
+        setModalFail(true)
+      }else if(error.heading){
+        Setmessage(error.heading[0])
+        setModalFail(true)
+      }else if(error.stories_section){
+        Setmessage(error.stories_section[0])
+        setModalFail(true)
+      }else if(error.status){
+        Setmessage(error.status[0])
+        setModalFail(true)
+      }else if(error.schedule_story_time){
+        Setmessage(error.schedule_story_time[0])
+        setModalFail(true)
+      }
+
     })
   })
 
@@ -952,14 +1067,14 @@ const handleMove =(e)=>{
                           </div>
                         </Col>
 
-                        <Col className="mt-2">
+                        {/* <Col className="mt-2">
                           <div className="form-group">
                             <label className="form-label">Thumnail</label>
                             <div className="form-control-wrap">
                               <input type="file"   onChange={(e)=>Setthumbnail(e.target.files[0])} classNamePrefix="react-select"  className="form-control"/>
                             </div>
                           </div>
-                        </Col>
+                        </Col> */}
 
                         <div className="mt-2">
                           <Label htmlFor="default-0" className="form-label">
@@ -1084,8 +1199,8 @@ const handleMove =(e)=>{
                               </select>
                           </div>
                           {/* selectmedia */}
-                          {selectmedia&&<section style={{ display:"flex", flexDirection:"row" }}>
-                          <div style={{ width:"40px", height:"10px" }}>
+                          {selectmedia&&<section style={{ display:"flex", alignItems:"center",  flexDirection:"row" }}>
+                          <div style={{ width:"100px", height:"70px" }}>
                               <img src={selectmedia} className="w-full h-full" />
                             </div>
                             <div style={{ display:"flex", justifyItems:"center", alignItems:"center" }}>
@@ -1099,7 +1214,7 @@ const handleMove =(e)=>{
 
                           </div>
 
-                        <div className="mt-2">
+                        {/* <div className="mt-2">
                           <Label htmlFor="default-0" className="form-label">
                             Image Uploader
                           </Label>
@@ -1114,7 +1229,7 @@ const handleMove =(e)=>{
                             />
                           </div>
                          {story_link&&<p style={{ fontSize:"12px" }}>copy link: {story_link} </p> }  
-                        </div>
+                        </div> */}
 
                       
 
@@ -1363,6 +1478,63 @@ const handleMove =(e)=>{
           </div>
         </Card>
       </Content>
+     
+      <Modal isOpen={modalSuccess} toggle={toggleSuccess}>
+                  <ModalBody className="modal-body-lg text-center">
+                    <div className="nk-modal">
+                      <Icon className="nk-modal-icon icon-circle icon-circle-xxl ni ni-check bg-success"></Icon>
+                      <h4 className="nk-modal-title">{message?message:"Successful"}  </h4>
+                      <div className="nk-modal-text">
+                        {/* <div className="caption-text">
+                           successful
+                        </div> */}
+                        {/* <span className="sub-text-sm">
+                          Learn when you reciveve bitcoin in your wallet.{" "}
+                          <a href="#link" onClick={(ev) => ev.preventDefault()}>
+                            {" "}
+                            Click here
+                          </a>
+                        </span> */}
+                      </div>
+                      <div className="nk-modal-action">
+                        <Button color="primary" size="lg" className="btn-mw" onClick={toggleSuccess}>
+                          OK
+                        </Button>
+                      </div>
+                    </div>
+                  </ModalBody>
+                  <ModalFooter className="bg-light">
+                    <div className="text-center w-100">
+                      {/* <p>
+                        Earn upto $25 for each friend your refer!{" "}
+                        <a href="#invite" onClick={(ev) => ev.preventDefault()}>
+                          Invite friends
+                        </a>
+                      </p> */}
+                    </div>
+                  </ModalFooter>
+                </Modal>
+
+
+                <Modal isOpen={modalFail} toggle={toggleModalFail}>
+                  <ModalBody className="modal-body-lg text-center">
+                    <div className="nk-modal">
+                      <Icon className="nk-modal-icon icon-circle icon-circle-xxl ni ni-cross bg-danger"></Icon>
+                      <h4 className="nk-modal-title"> {message?message:"Unable to Process!"} </h4>
+                      <div className="nk-modal-text">
+                     
+                        {/* <p className="text-soft">If you need help please contact us at (855) 485-7373.</p> */}
+                      </div>
+                      <div className="nk-modal-action mt-5">
+                        <Button color="light" size="lg" className="btn-mw" onClick={toggleModalFail}>
+                          Return
+                        </Button>
+                      </div>
+                    </div>
+                  </ModalBody>
+                </Modal>
+
+
     </React.Fragment>
   );
 };

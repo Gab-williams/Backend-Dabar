@@ -706,10 +706,16 @@ export const copywritermenu = [
   //   link: "/copywriter/pricing-plans",
   // },
   {
-    text: "Profile",
-    icon: "user",
-    link: "/copywriter/profile",
+  text:"Writer",
+  icon:"edit",
+  link:"/demo9/copywriter/document-writer"
   },
+
+  // {
+  //   text: "Profile",
+  //   icon: "user",
+  //   link: "demo9/copywriter/profile",
+  // },
   {
     text: "Media",
     icon: "music",

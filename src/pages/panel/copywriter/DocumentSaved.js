@@ -14,6 +14,15 @@ import {
   DropdownToggle,
   UncontrolledDropdown,
   DropdownItem, Badge, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
+  import {
+    Card,
+  
+    Label,
+    Modal,
+    ModalBody,
+    PreviewCard,
+    ModalFooter
+  } from "reactstrap";
 import classnames from "classnames";
 import { documents } from "./data/document";
 import noDocuments from "../../../images/copywriter/illustrations/no-documents.svg";
@@ -38,6 +47,10 @@ const DocumentSaved = () => {
   const [tablesm, updateTableSm] = useState(false);
   const [onSearch, setonSearch] = useState(true);
   const [onSearchText, setSearchText] = useState("");
+  const [modalSuccess, setModalSuccess] = useState(false);
+  const [message, Setmessage] = useState("")
+  const [modalFail, setModalFail] = useState(false);
+;
 
   const [actionText, setActionText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -47,6 +60,8 @@ const DocumentSaved = () => {
   const bgcolor = ['dark', 'info', 'primary', 'warning', 'secondary', 'danger', 'gray'];
   const local =  localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
   const original = window.location.origin
+  const toggleSuccess = () => setModalSuccess(!modalSuccess);
+  const toggleModalFail = () => setModalFail(!modalFail)
   useEffect(()=>{
     if(local){
       
@@ -200,7 +215,17 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
     }
   }).then(res=>{
     if(res.data.message){
+      Setmessage(res.data.message)
+      setModalSuccess(true)
+      setTimeout(()=>{
       window.location.href = original+'/demo9/copywriter'
+      },3000)
+    }
+  }).catch(err=>{
+    let error = err.response.data.errors
+    if(error.id){
+      Setmessage(error.id[0])
+      setModalFail(true)
     }
   })
 })
@@ -507,6 +532,62 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
           </DataTable>
         </Block>
       </Content>
+
+
+      <Modal isOpen={modalSuccess} toggle={toggleSuccess}>
+                  <ModalBody className="modal-body-lg text-center">
+                    <div className="nk-modal">
+                      <Icon className="nk-modal-icon icon-circle icon-circle-xxl ni ni-check bg-success"></Icon>
+                      <h4 className="nk-modal-title">{message?message:"Successful"}  </h4>
+                      <div className="nk-modal-text">
+                        {/* <div className="caption-text">
+                           successful
+                        </div> */}
+                        {/* <span className="sub-text-sm">
+                          Learn when you reciveve bitcoin in your wallet.{" "}
+                          <a href="#link" onClick={(ev) => ev.preventDefault()}>
+                            {" "}
+                            Click here
+                          </a>
+                        </span> */}
+                      </div>
+                      <div className="nk-modal-action">
+                        <Button color="primary" size="lg" className="btn-mw" onClick={toggleSuccess}>
+                          OK
+                        </Button>
+                      </div>
+                    </div>
+                  </ModalBody>
+                  <ModalFooter className="bg-light">
+                    <div className="text-center w-100">
+                      {/* <p>
+                        Earn upto $25 for each friend your refer!{" "}
+                        <a href="#invite" onClick={(ev) => ev.preventDefault()}>
+                          Invite friends
+                        </a>
+                      </p> */}
+                    </div>
+                  </ModalFooter>
+                </Modal>
+
+
+                <Modal isOpen={modalFail} toggle={toggleModalFail}>
+                  <ModalBody className="modal-body-lg text-center">
+                    <div className="nk-modal">
+                      <Icon className="nk-modal-icon icon-circle icon-circle-xxl ni ni-cross bg-danger"></Icon>
+                      <h4 className="nk-modal-title"> {message?message:"Unable to Process!"} </h4>
+                      <div className="nk-modal-text">
+                     
+                        {/* <p className="text-soft">If you need help please contact us at (855) 485-7373.</p> */}
+                      </div>
+                      <div className="nk-modal-action mt-5">
+                        <Button color="light" size="lg" className="btn-mw" onClick={toggleModalFail}>
+                          Return
+                        </Button>
+                      </div>
+                    </div>
+                  </ModalBody>
+                </Modal>
     </React.Fragment>
   );
 };

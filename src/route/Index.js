@@ -15,6 +15,7 @@ import CopyDocumentDrafts from "../pages/panel/copywriter/DocumentDrafts";
 import CopyDocumentEditor from "../pages/panel/copywriter/DocumentEditor";
 import CopyDocumentSaved from "../pages/panel/copywriter/DocumentSaved";
 import CopyDocumentCategories from "../pages/panel/copywriter/DocumentCategories";
+import CopyDocumentWriter from "../pages/panel/copywriter/DocumentWriter";
 import CopyHistory from "../pages/panel/copywriter/History";
 import CopyPayment from "../pages/panel/copywriter/Payment";
 import CopyPricingPlans from "../pages/panel/copywriter/PricingPlans";
@@ -158,6 +159,7 @@ const Pages = () => {
             <Route path="blank" element={<CopyBlank />}></Route>
             <Route path="document-drafts" element={<CopyDocumentDrafts />}></Route>
             <Route path="document-categories" element={<CopyDocumentCategories />}></Route>
+            <Route path="document-writer" element={<CopyDocumentWriter/>}></Route>
             <Route path="document-editor" element={<CopyDocumentEditor />}></Route>
             <Route path="document-saved" element={<CopyDocumentSaved />}></Route>
             <Route path="history" element={<CopyHistory />}></Route>

@@ -85,7 +85,7 @@ const Menu = ({ sidebarToggle, mobileView, menuData }) => {
           key={item.text}
           // link={item.link}
           icon={item.icon}
-          text={item.text}
+          // text={item.text}
           badge={item.badge}
           // sub={item.subMenu}
           sidebarToggle={sidebarToggle}
