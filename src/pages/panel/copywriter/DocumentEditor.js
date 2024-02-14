@@ -473,6 +473,9 @@ const {quill, quillRef} = useQuill(modules, formats);
           Setmessage(res.data.success)
           // window.location.href = original+'/demo9/copywriter'
           setModalSuccess(true)
+          setTimeout(()=>{
+            window.location.href = `${original}/demo9/copywriter`;
+          },3000)        
         }
       }).catch(err=>{
         // setModalFail
@@ -732,7 +735,9 @@ let main_imagex =   await Imagekitupload(main_image);
         Setmessage("Edit Successful")
         setModalSuccess(true)
         // window.location.href = original+'/demo9/copywriter'
-  
+        setTimeout(()=>{
+          window.location.href = `${original}/demo9/copywriter`;
+        },3000)
       }
     }).catch(err=>{
 
