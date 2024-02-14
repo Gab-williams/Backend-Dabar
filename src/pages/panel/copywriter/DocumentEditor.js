@@ -634,6 +634,13 @@ useEffect(()=>{
           Setschedule_story_time(new Date(res.data.message.schedule_story_time))
           Setwriter_id(res.data.message.writer_id)
           Setcategory_id(res.data.message.category_id)
+          // console.log("Status check",res.data.message.status)
+           Setstatus(res.data.message.status)
+           if(res.data.message.status == 1){
+            Settextin("Publish")
+           }else{
+            Settextin("Draft")
+           }
           let stringx = "<p>dhdhjdjdsj</p>";
           var parser = new DOMParser();
           var parsedHtml = parser.parseFromString(res.data.message.body, "text/html");
@@ -991,6 +998,7 @@ const handleMove =(e)=>{
                   <li>
                     <UncontrolledDropdown>
                       <DropdownToggle className="btn btn-md btn-light rounded-pill">
+                     
                         <span>{textin?textin:"Select Status"} </span>
                         <Icon name="chevron-down"></Icon>
                       </DropdownToggle>
@@ -1016,7 +1024,7 @@ const handleMove =(e)=>{
                   </li>
                   <li>
                     {editid?<Button onClick={(e)=>handleEdit(e)} size="md" color="primary" className="rounded-pill">
-                     Edit 
+                     Save Edit 
                    </Button>:
                      <Button onClick={(e)=>handleSubmit(e)} size="md" color="primary" className="rounded-pill">
                      Save 
