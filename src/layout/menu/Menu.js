@@ -2,8 +2,9 @@ import React, { useEffect } from "react";
 import Icon from "../../components/icon/Icon";
 import classNames from "classnames";
 import { NavLink, Link } from "react-router-dom";
-
+import { AES, enc } from 'crypto-js';
 const MenuHeading = ({ heading }) => {
+ 
   return (
     <li className="nk-menu-heading">
       <h6 className="overline-title text-primary-alt">{heading}</h6>
@@ -13,7 +14,8 @@ const MenuHeading = ({ heading }) => {
 
 const MenuItem = ({ icon, link, text, sub, newTab, sidebarToggle, badge, mobileView, ...props }) => {
   let currentUrl;
-
+  let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
+console.log(local.role)
   const toggleActionSidebar = (e) => {
     if (!sub && !newTab && mobileView) {
       sidebarToggle(e);
@@ -147,14 +149,15 @@ const MenuItem = ({ icon, link, text, sub, newTab, sidebarToggle, badge, mobileV
       ) : (
         <NavLink
           to={`${process.env.PUBLIC_URL + link}`}
-          className={`nk-menu-link${sub ? " nk-menu-toggle" : ""}`}
+          className={ `nk-menu-link${sub ? " nk-menu-toggle" : ""}`}
           onClick={sub ? menuToggle : null}
         >
-          {icon ? (
+          { icon ? (
             <span className="nk-menu-icon">
               <Icon name={icon} />
             </span>
           ) : null}
+          {/* this one */}
           <span className="nk-menu-text">{text}</span>
           {badge && <span className="nk-menu-badge">{badge}</span>}
         </NavLink>
@@ -191,8 +194,10 @@ const MenuSub = ({ icon, link, text, sub, sidebarToggle, mobileView, ...props })
 const Menu = ({ sidebarToggle, mobileView, menuData }) => {
   return (
     <ul className="nk-menu">
+      {/* {console.log(menuData.map((item)=>item.text))} */}
       {menuData.map((item) =>
         item.heading ? (
+           
           <MenuHeading heading={item.heading} key={item.heading} />
         ) : (
           <MenuItem

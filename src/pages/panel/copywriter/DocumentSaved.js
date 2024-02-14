@@ -8,7 +8,7 @@ import { Block, BlockBetween, BlockHead, BlockHeadContent, BlockTitle, BlockDes,
   DataTableHead,
   DataTableRow,
   DataTableItem } from "../../../components/Component";
-import { Link, useNavigate } from "react-router-dom";
+import { Await, Link, useNavigate } from "react-router-dom";
 import { 
   DropdownMenu,
   DropdownToggle,
@@ -50,13 +50,14 @@ const DocumentSaved = () => {
   const [modalSuccess, setModalSuccess] = useState(false);
   const [message, Setmessage] = useState("")
   const [modalFail, setModalFail] = useState(false);
-;
+
 
   const [actionText, setActionText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemPerPage, setItemPerPage] = useState(10);
   const [sort, setSortState] = useState("");
   const [story, Setstory] = useState([])
+  const [categoryxz, Setcategoryxz] = useState([])
   const bgcolor = ['dark', 'info', 'primary', 'warning', 'secondary', 'danger', 'gray'];
   const local =  localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
   const original = window.location.origin
@@ -86,7 +87,7 @@ const DocumentSaved = () => {
     }
   };
   const apiClient = axios.create({
-    baseURL: "https://dabarmedia.com/",
+    baseURL: "http://127.0.0.1:8000/",
     withCredentials: true
   });
     const [last, Setlast] = useState(1)
@@ -107,15 +108,31 @@ const DocumentSaved = () => {
           "Authorization":"Bearer "+local.token,
           }
       }).then(res=>{
-        console.log(res)
+        console.log('publish story',res)
         if(res.data.message){
           Setstory(res.data.message.data)
-          Setlast(res.data.message.cd)
+          Setlast(res.data.message.last_page)
         }
       })
     })
 
 
+    const allcategoryx = async()=>{
+      let urlxs = 'api/admin/allcategory'
+      await apiClient.get('/sanctum/csrf-cookie');
+     let cate =   await apiClient.get(urlxs,{headers:{
+          "Authorization":"Bearer "+local.token}
+          })
+    //  Setcategoryxz(cate.data.success)
+    let arr = ['Select']
+    cate.data.success.map((item)=>{
+      arr.push(item.name)
+      // Setcategoryxz([...categoryxz, item.name])
+    })
+    Setcategoryxz(arr)
+    }
+
+    allcategoryx()
 
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -271,6 +288,25 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
 
  }
 
+ const handleCategory = async(e, storyid)=>{
+  e.preventDefault()
+  console.log(e.target.value, storyid)
+  let formData = new FormData();
+  formData.append("category", e.target.value)
+  formData.append('id', storyid)
+  formData.append('_method', 'put')
+  let url = 'api/admin/change_category';
+  await apiClient.get('/sanctum/csrf-cookie');
+ let res =  await apiClient.post(url, formData, {
+    headers:{
+      "Authorization":"Bearer "+local.token,
+      }
+  })
+    if(res.data.success){
+      navigate('/demo9/copywriter/document-saved')
+    }
+ }
+
   return (
     <React.Fragment>
       <Head title="Document Saved"></Head>
@@ -394,6 +430,9 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                       <DataTableRow size="sm">
                         <h6 className="overline-title">Type</h6>
                       </DataTableRow>
+                      <DataTableRow size="sm">
+                        <h6 className="overline-title">Action</h6>
+                      </DataTableRow>
                       <DataTableRow size="md">
                         <h6 className="overline-title">Last Modified</h6>
                       </DataTableRow>
@@ -424,6 +463,13 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                               </DataTableRow>
                               <DataTableRow size="sm">
                                 <Badge color={randomColor} className="badge-dim rounded-pill">{item.category_id}</Badge>
+                              </DataTableRow>
+                              <DataTableRow size="md">
+                                <div className="sub-text d-inline-flex flex-wrap gx-2"> 
+                                <select onChange={(e)=>handleCategory(e, item.id)}>
+                                  {categoryxz.map((item, index)=><option key={index}>{item}</option>)}
+                                </select>
+                                </div>
                               </DataTableRow>
                               <DataTableRow size="md">
                                 <div className="sub-text d-inline-flex flex-wrap gx-2">{formattedDate}</div>

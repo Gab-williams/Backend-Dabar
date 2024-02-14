@@ -112,7 +112,7 @@ export default function DocumentWriter() {
     let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
     let original = window.location.origin
     const apiClient = axios.create({
-        baseURL: "https://dabarmedia.com/",
+        baseURL: "http://127.0.0.1:8000/",
         withCredentials: true
       });
   

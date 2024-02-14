@@ -231,12 +231,12 @@ const DocumentEditor = () => {
  
 
   const apiClient = axios.create({
-    baseURL: "https://dabarmedia.com/",
+    baseURL: "http://127.0.0.1:8000/",
     withCredentials: true
   });
 
   const uploadToImageKit = async (file) => {
-    console.log(file)
+    // console.log(file)
     let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
     apiClient.get('/sanctum/csrf-cookie').then(()=>{
     let urlxx = '/api/admin/uploadauth';
@@ -470,6 +470,7 @@ const {quill, quillRef} = useQuill(modules, formats);
       }).then(res=>{
         // console.log(res)
         if(res.data.success){
+          Setmessage(res.data.success)
           // window.location.href = original+'/demo9/copywriter'
           setModalSuccess(true)
         }
@@ -620,7 +621,7 @@ useEffect(()=>{
           "Authorization":"Bearer "+local.token,
           }
       }).then(res=>{
-         console.log("edit res", res)
+        //  console.log("edit res", res)
         if(res.data.message){
         let answriter = writerdata.find((item)=>item.id == res.data.message.writer_id)
        let anscategory = categorydata.find((item)=>item.id == res.data.message.category_id)
@@ -684,7 +685,7 @@ const handleWriter = (writerword)=>{
   Setwriter_id(info.id)
 }
 //
-console.log(main_image) 
+// console.log(main_image) 
 const handleEdit = async(e)=>{
 e.preventDefault();
 let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
@@ -694,7 +695,7 @@ const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()))
 if(Object.keys(main_image).length > 0){
   // let thumbnailx =  await Imagekitupload(thumbnail);
 let main_imagex =   await Imagekitupload(main_image);
-console.log(main_imagex)
+// console.log(main_imagex)
   let formData = new FormData();
   let schedule_story_timex =  schedule_story_time.toISOString()
   let stories_sectionx = JSON.stringify(stories_section)
@@ -847,11 +848,11 @@ console.log(main_imagex)
 
 
 const onEditorStateChange = (newEditorState) => {
-  console.log(newEditorState)
+  // console.log(newEditorState)
   const contentState = convertToRaw(newEditorState.getCurrentContent());
 
   const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
-  console.log('Editor Content State:', contentStatex);
+  // console.log('Editor Content State:', contentStatex);
   setEditorState(newEditorState);
 };
 
@@ -900,7 +901,7 @@ const handleSelectStatus = (text)=>{
 }
 
 const handleMove =(e)=>{
-  console.log(e.target.value)
+  // console.log(e.target.value)
   if(e.target.value != 'Select Image'){
     Setselectmedia(e.target.value)
   }
