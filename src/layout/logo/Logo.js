@@ -6,8 +6,8 @@ import { Link } from "react-router-dom";
 const Logo = ({to}) => {
   return (
     <Link to={to ? to : `${process.env.PUBLIC_URL}/`} className="logo-link">
-      <img className="logo-light logo-img" src={LogoLight2x} alt="logo" />
-      <img className="logo-dark logo-img" src={LogoDark2x} alt="logo" />
+      <img className="logo-light logo-img" src="https://ik.imagekit.io/jtcvnfckl/logo.png?updatedAt=1708008457511" alt="logo" />
+      <img className="logo-dark logo-img" src="https://ik.imagekit.io/jtcvnfckl/logo.png?updatedAt=1708008457511" alt="logo" />
     </Link>
   );
 };

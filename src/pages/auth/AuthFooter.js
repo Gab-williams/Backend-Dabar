@@ -13,7 +13,7 @@ const AuthFooter = () => {
       <div className="container wide-xl">
         <Row className="g-3">
           <Col lg={6} className="order-lg-last">
-            <ul className="nav nav-sm justify-content-center justify-content-lg-end">
+            {/* <ul className="nav nav-sm justify-content-center justify-content-lg-end">
               <li className="nav-item">
                 <Link className="nav-link" target="_blank" to={`${process.env.PUBLIC_URL}/auths/terms`}>
                   Terms &amp; Condition
@@ -95,11 +95,11 @@ const AuthFooter = () => {
                   </DropdownMenu>
                 </UncontrolledDropdown>
               </li>
-            </ul>
+            </ul> */}
           </Col>
           <Col lg="6">
             <div className="nk-block-content text-center text-lg-start">
-              <p className="text-soft">&copy; 2022 Dashlite. All Rights Reserved.</p>
+              <p className="text-soft">&copy; {new Date().getFullYear()} The Dabar.</p>
             </div>
           </Col>
         </Row>

@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="nk-footer-wrap">
           <div className="nk-footer-copyright">
             {" "}
-            &copy; 2022 DashLite React Template by <a href="https://softnio.com">Softnio</a>
+            &copy; {new Date().getFullYear()} TheDabar
           </div>
           <div className="nk-footer-links">
             <ul className="nav nav-sm">
@@ -21,7 +21,7 @@ const Footer = () => {
                     onClick={(ev) => ev.preventDefault()}
                     className="dropdown-toggle dropdown-indicator has-indicator nav-link"
                   >
-                    <span>English</span>
+                    {/* <span>English</span> */}
                   </DropdownToggle>
                   <LangDropdown />
                 </UncontrolledDropdown>

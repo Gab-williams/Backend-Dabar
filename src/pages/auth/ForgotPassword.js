@@ -41,8 +41,8 @@ const  handleRedirct = ()=>{
         <Block className="nk-block-middle nk-auth-body  wide-xs">
           <div className="brand-logo pb-4 text-center">
             <Link to={process.env.PUBLIC_URL + "/"} className="logo-link">
-              <img className="logo-light logo-img logo-img-lg" src={Logo} alt="logo" />
-              <img className="logo-dark logo-img logo-img-lg" src={LogoDark} alt="logo-dark" />
+              <img className="logo-light logo-img logo-img-lg" src="https://ik.imagekit.io/jtcvnfckl/logo.png?updatedAt=1708008457511" alt="logo" />
+              <img className="logo-dark logo-img logo-img-lg" src="https://ik.imagekit.io/jtcvnfckl/logo.png?updatedAt=1708008457511" alt="logo-dark" />
             </Link>
           </div>
           <PreviewCard className="" bodyClass="card-inner-lg">
