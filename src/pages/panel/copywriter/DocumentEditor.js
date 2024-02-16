@@ -421,6 +421,21 @@ const formats = [
   // "code-block",
   ]
 
+  // Create a new Date object representing the current time
+var currentDate = new Date();
+
+// Get the current time zone offset in milliseconds
+var localOffset = currentDate.getTimezoneOffset() * 60 * 1000; // Convert minutes to milliseconds
+
+// Calculate the current UTC time in milliseconds
+var utcTime = currentDate.getTime() + localOffset;
+
+// Define the target time zone offset (e.g., PST is -8 hours)
+var targetOffset = -8 * 60 * 60 * 1000;
+
+// Calculate the target time by adding the target offset and subtracting the local offset
+// var targetTime = new Date(utcTime + targetOffset - localOffset);
+
 const {quill, quillRef} = useQuill(modules, formats);
   
 // console.log(quillRef)
@@ -438,7 +453,7 @@ const {quill, quillRef} = useQuill(modules, formats);
   const [main_image, Setmain_image] = useState("")
   const [keypoints, Setkeypoints] = useState("")
   const [thumbnail, Setthumbnail] = useState("")
-  const [schedule_story_time, Setschedule_story_time] = useState(new Date())
+  const [schedule_story_time, Setschedule_story_time] = useState(new Date(utcTime + targetOffset - localOffset))
   const [status, Setstatus] = useState(0)
   const handleSubmit = async(e)=>{
     e.preventDefault();
@@ -1176,7 +1191,7 @@ const handleMove =(e)=>{
                             <div className="form-control-wrap">
                               <DatePicker 
                               selected={schedule_story_time} 
-                              minDate={new Date()} 
+                              minDate={new Date(utcTime + targetOffset - localOffset)} 
                               onChange={(date)=>Setschedule_story_time(date)} 
                               showTimeSelect
                               timeIntervals={15} // Optional: Set the time intervals in minutes
