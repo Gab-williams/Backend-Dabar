@@ -101,7 +101,7 @@ const DocumentCategories = () => {
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
   let original = window.location.origin
   const apiClient = axios.create({
-      baseURL: "http://127.0.0.1:8000/",
+      baseURL: "https://dabarmedia.com/",
       withCredentials: true
     });
 

@@ -39,7 +39,7 @@ const Login = () => {
 
   const apiClient = axios.create({
     // https://dabarmedia.com
-    baseURL: "http://127.0.0.1:8000/",
+    baseURL: "https://dabarmedia.com/",
     withCredentials: true
   });
 
