@@ -60,9 +60,9 @@ const Header = ({ fixed, className, ...props }) => {
               {/* <li className="notification-dropdown me-n1">
                 <Notification />
               </li> */}
-              <li className="language-dropdown d-none d-sm-block me-n1" >
+              {/* <li className="language-dropdown d-none d-sm-block me-n1" >
                 <LanguageHead />
-              </li>
+              </li> */}
               <li className="user-dropdown">
                 <User />
               </li>

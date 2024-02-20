@@ -430,9 +430,9 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                       <DataTableRow size="sm">
                         <h6 className="overline-title">Type</h6>
                       </DataTableRow>
-                      <DataTableRow size="sm">
+                      {/* <DataTableRow size="sm">
                         <h6 className="overline-title">Action</h6>
-                      </DataTableRow>
+                      </DataTableRow> */}
                       <DataTableRow size="md">
                         <h6 className="overline-title">Last Modified</h6>
                       </DataTableRow>
@@ -464,13 +464,13 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                               <DataTableRow size="sm">
                                 <Badge color={randomColor} className="badge-dim rounded-pill">{item.category_id}</Badge>
                               </DataTableRow>
-                              <DataTableRow size="md">
+                              {/* <DataTableRow size="md">
                                 <div className="sub-text d-inline-flex flex-wrap gx-2"> 
                                 <select onChange={(e)=>handleCategory(e, item.id)}>
                                   {categoryxz.map((item, index)=><option key={index}>{item}</option>)}
                                 </select>
                                 </div>
-                              </DataTableRow>
+                              </DataTableRow> */}
                               <DataTableRow size="md">
                                 <div className="sub-text d-inline-flex flex-wrap gx-2">{formattedDate}</div>
                               </DataTableRow>

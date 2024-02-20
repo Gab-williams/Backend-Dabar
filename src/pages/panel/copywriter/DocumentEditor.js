@@ -52,8 +52,15 @@ import { categories } from "./data/category";
 import axios from 'axios';
 import { AES, enc } from 'crypto-js';
 import { useLocation, useNavigate } from "react-router-dom";
-import DatePicker from "react-datepicker";
-import 'react-datepicker/dist/react-datepicker.css';
+// import DatePicker from "react-datepicker";
+// import 'react-datepicker/dist/react-datepicker.css';
+
+
+import DateTimePicker from 'react-datetime-picker';
+import 'react-datetime-picker/dist/DateTimePicker.css';
+import 'react-clock/dist/Clock.css';
+import 'react-calendar/dist/Calendar.css';
+
 import { Editor, EditorState, RichUtils, convertToRaw, convertFromRaw, ContentState } from 'draft-js';
 import { Editor as WysiwygEditor } from 'react-draft-wysiwyg';
 import "../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
@@ -626,7 +633,7 @@ useEffect(()=>{
 
 
 
-
+const [isdisabledclock, Setisdisabledclock] = useState(false)
 
 useEffect(()=>{
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
@@ -653,9 +660,23 @@ useEffect(()=>{
           Setwriter_id(res.data.message.writer_id)
           Setcategory_id(res.data.message.category_id)
           // console.log("Status check",res.data.message.status)
+            let schedule_time = new Date(res.data.message.schedule_story_time)
+            let current_time = new Date(utcTime + targetOffset - localOffset);
+              if (schedule_time > current_time) {
+                Settextin("Scheduled")
+                Setisdisabledclock(true)
+              } else {
+                if(res.data.message.status == 1){
+                  Settextin("Publish")
+                  Setisdisabledclock(true)
+                 }else{
+                  Settextin("Draft")
+                 }
+              }
            Setstatus(res.data.message.status)
            if(res.data.message.status == 1){
             Settextin("Publish")
+            Setisdisabledclock(true)
            }else{
             Settextin("Draft")
            }
@@ -943,6 +964,24 @@ const handleMove =(e)=>{
        Setstories_section(sec)
     }
   
+    const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [isClock, SetisClock] = useState(false)
+    const [selectedDate, setSelectedDate] = useState(new Date());
+    const [showcalender, Setshowcalender ] = useState(false)
+    const handleDateChange = (date) => {
+      // setSelectedDate(date);
+      Setschedule_story_time(date)
+      setIsCalendarOpen(false); // Close calendar after selection
+    };
+
+    const handleClock =()=>{
+      if(!isClock){
+        SetisClock(true)
+        setIsCalendarOpen(false)
+      }else{
+        SetisClock(false)
+      }
+    }
   return (
     <React.Fragment>
       <Head title="Document Editor"></Head>
@@ -951,18 +990,8 @@ const handleMove =(e)=>{
           <div className="nk-editor">
             <div className="nk-editor-header">
               <div className="nk-editor-title">
-                <h4 className="me-3 mb-0 line-clamp-1">2023-02-03 Untitled</h4>
                 <ul className="d-inline-flex align-item-center">
-                  <li>
-                    <Button size="sm" color="trigger" className="btn-icon">
-                      <Icon name="pen"></Icon>
-                    </Button>
-                  </li>
-                  <li>
-                    <Button size="sm" color="trigger" className="btn-icon">
-                      <Icon name="star"></Icon>
-                    </Button>
-                  </li>
+               
                   <li className="d-xl-none">
                     <UncontrolledDropdown>
                       <DropdownToggle color="trigger" className="btn btn-sm btn-icon">
@@ -1004,15 +1033,28 @@ const handleMove =(e)=>{
               <div className="nk-editor-tools d-none d-xl-flex">
                 <ul className="d-inline-flex gx-3 gx-lg-4 pe-4 pe-lg-5">
                   <li>
-                    <span className="sub-text text-nowrap">
-                      Words <span className="text-dark">25</span>
-                    </span>
+                    
+                  <button onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
+                              {isCalendarOpen ? 'Hide Calendar' : 'Show Calendar'}
+                            </button>
+                             <DateTimePicker
+                             onChange={handleDateChange}
+                             value={schedule_story_time}
+                             isCalendarOpen={isCalendarOpen} // Control calendar visibility
+                             isClockOpen={isClock}
+                             disableClock={isdisabledclock}
+                             calendarIcon={null}
+                             clearIcon={null}
+                             minDate={new Date(utcTime + targetOffset - localOffset)}
+                           />
+
+                 <button onClick={handleClock}>    {isClock ? 'Hide Clock' : 'Show Clock'} </button>
                   </li>
-                  <li>
+                  {/* <li>
                     <span className="sub-text text-nowrap">
                       Characters <span className="text-dark">84</span>
                     </span>
-                  </li>
+                  </li> */}
                 </ul>
                 <ul className="d-inline-flex gx-3">
                   <li>
@@ -1146,8 +1188,16 @@ const handleMove =(e)=>{
                               <div style={{ width:'100%', height: 200,  overflowY: 'auto' }}>
                               <WysiwygEditor
                                       editorState={editorState}
+                                      editorStyle={{ fontFamily:'josefin sans, san-serif' }}
                                       onEditorStateChange={onEditorStateChange}
                                       toolbar={{
+                                        options: ['inline',  'blockType', 'list', 'image',  'textAlign',   'link', 'embedded', 'emoji',  'remove', 'history'],
+                                        inline: {
+                                          options: ['bold', 'italic', 'underline'],
+                                        },
+                                        blockType: {
+                                          options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'],
+                                        },
                                         image: {
                                           uploadCallback: uploadToImageKit,
                                           alt: { present: true, mandatory: true },
@@ -1186,10 +1236,10 @@ const handleMove =(e)=>{
                        
                         <Col className="mt-2">
                           <div className="form-group">
-                            <label className="form-label">Schedule Story Time</label>
+                            {/* <label className="form-label">Schedule Story Time</label> */}
                             {/* <RSelect options={options} /> */}
                             <div className="form-control-wrap">
-                              <DatePicker 
+                              {/* <DatePicker 
                               selected={schedule_story_time} 
                               minDate={new Date(utcTime + targetOffset - localOffset)} 
                               onChange={(date)=>Setschedule_story_time(date)} 
@@ -1197,7 +1247,21 @@ const handleMove =(e)=>{
                               timeIntervals={15} // Optional: Set the time intervals in minutes
                               dateFormat="MMMM d, yyyy h:mm aa"
                               classNamePrefix="react-select" 
-                               className="form-control" />
+                               className="form-control" /> */}
+
+                      {/* <button onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
+                              {isCalendarOpen ? 'Hide Calendar' : 'Show Calendar'}
+                            </button>
+                             <DateTimePicker
+                             onChange={handleDateChange}
+                             value={schedule_story_time}
+                             isCalendarOpen={isCalendarOpen} // Control calendar visibility
+                             // isClockOpen={isCalendarOpen}
+                             minDate={new Date(utcTime + targetOffset - localOffset)}
+                           />
+                        */}
+
+          
                             </div>
                           </div>
                         </Col>

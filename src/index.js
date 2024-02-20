@@ -5,14 +5,17 @@ import App from "./App";
 
 import "./assets/scss/dashlite.scss";
 import "./assets/scss/style-email.scss";
-
+// import { LocalizationProvider } from '@mui/x-date-pickers';
+// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import reportWebVitals from "./reportWebVitals";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <>
     <BrowserRouter>
+    {/* <LocalizationProvider dateAdapter={AdapterDayjs}> */}
       <App />
+      {/* </LocalizationProvider> */}
     </BrowserRouter>
   </>
 );

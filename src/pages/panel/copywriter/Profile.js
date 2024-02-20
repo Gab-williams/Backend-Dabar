@@ -171,7 +171,18 @@ const Profile = () => {
 
   }
 
+  // Create a new Date object representing the current time
+  var currentDate = new Date();
 
+  // Get the current time zone offset in milliseconds
+  var localOffset = currentDate.getTimezoneOffset() * 60 * 1000; // Convert minutes to milliseconds
+  
+  // Calculate the current UTC time in milliseconds
+  var utcTime = currentDate.getTime() + localOffset;
+  
+  // Define the target time zone offset (e.g., PST is -8 hours)
+  var targetOffset = -8 * 60 * 60 * 1000;
+   let timezone = new Date(utcTime + targetOffset - localOffset)
 
   return (
     <React.Fragment>
@@ -292,55 +303,23 @@ const Profile = () => {
                     <div className="data-head">
                       <h6 className="overline-title">Preferences</h6>
                     </div>
-                    <div className="data-item">
+                    {/* <div className="data-item">
                       <div className="data-col">
                         <span className="data-label">Language</span>
                         <span className="data-value">English (United State)</span>
                       </div>
                       <div className="data-col data-col-end">
-                        <a
-                          href="#language"
-                          onClick={(ev) => {
-                            ev.preventDefault();
-                          }}
-                          className="link link-primary"
-                        >
-                          Change Language
-                        </a>
+                      
                       </div>
-                    </div>
-                    <div className="data-item">
-                      <div className="data-col">
-                        <span className="data-label">Date Format</span>
-                        <span className="data-value">MM/DD/YYYY</span>
-                      </div>
-                      <div className="data-col data-col-end">
-                        <a
-                          href="#link"
-                          onClick={(ev) => {
-                            ev.preventDefault();
-                          }}
-                          className="link link-primary"
-                        >
-                          Change
-                        </a>
-                      </div>
-                    </div>
+                    </div> */}
+                    
                     <div className="data-item">
                       <div className="data-col">
                         <span className="data-label">Timezone</span>
-                        <span className="data-value">Bangladesh (GMT +6)</span>
+                        <span className="data-value">California PST {timezone.toLocaleString()} </span>
                       </div>
                       <div className="data-col data-col-end">
-                        <a
-                          href="#link"
-                          onClick={(ev) => {
-                            ev.preventDefault();
-                          }}
-                          className="link link-primary"
-                        >
-                          Change
-                        </a>
+                       
                       </div>
                     </div>
                   </div>
