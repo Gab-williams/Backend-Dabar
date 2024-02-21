@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Content from "../../../layout/content/Content";
 import Head from "../../../layout/head/Head";
 import GalleryCard from "../../../components/partials/gallery/GalleryCard";
+import { MdDelete } from "react-icons/md";
 import { Button, DropdownItem, DropdownMenu, DropdownToggle, UncontrolledDropdown, Modal } from "reactstrap";
 import {
   BlockBetween,
@@ -39,21 +40,18 @@ const GalleryCardPreview = () => {
   
   useEffect(()=>{
     let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
-     let interval = setInterval(()=>{
-      
+    //  let interval = setInterval(()=>{
+      let headers = new Headers();
+      headers.append('Content-Type', 'application/json');
       let urlxx = 'api/mediadata'
       apiClient.get('/sanctum/csrf-cookie').then(()=>{
-        apiClient.get(urlxx,   {
-          headers:{
-            "Authorization":"Bearer "+local.token,
-            }
-        }).then(res=>{
+        apiClient.get(urlxx, headers ).then(res=>{
           if(res.data.success){
           //  Setmediapic
            let data = res.data.success
             //  let objdata = [{name:'Select Image', file:"Select Image"}]
          let ansx =  data.map((item)=>{
-            let obj = {name:item.name, file:item.file }  
+            let obj = { id:item.id, name:item.name, file:item.file }  
              return obj
            })
            Setdata(ansx)
@@ -61,11 +59,35 @@ const GalleryCardPreview = () => {
         })
       })
 
-     },1500)
+    //  },1500)
   
 
-     return(() =>clearInterval(interval))
+    //  return(() =>clearInterval(interval))
   },[])
+
+  const handleDelete = async(e, id)=>{
+    e.preventDefault()
+     console.log(id)
+    let urlx  = 'api/deletemediadata'
+
+    let formData = new FormData();
+    let headers = new Headers();
+    headers.append('Content-Type', 'application/json');
+    formData.append('id',  id)
+    formData.append('_method', 'delete')
+    await apiClient.get('sanctum/csrf-cookie')
+   let res = await apiClient.post(urlx, formData, headers )
+   if(res.data.success){
+    //  Setmediapic
+     let data = res.data.success
+      //  let objdata = [{name:'Select Image', file:"Select Image"}]
+   let ansx =  data.map((item)=>{
+      let obj = { id:item.id, name:item.name, file:item.file }  
+       return obj
+     })
+     Setdata(ansx)
+    }
+  }
 
   return (
     <React.Fragment>
@@ -186,10 +208,11 @@ const GalleryCardPreview = () => {
                       </div> */}
                     </div>
                     <div>
-                      {/* <Button className="btn-p-0 btn-nofocus" onClick={() => onHeartClick()}>
-                        <Icon name={`${heart ? "heart-fill" : "heart"}`}></Icon>
-                        <span>{heart ? heartCount + 1 : heartCount}</span>
-                      </Button> */}
+                      <Button className="btn-p-0 btn-nofocus" >
+                        {/* <Icon name={`${heart ? "heart-fill" : "heart"}`}></Icon>
+                        <span>{heart ? heartCount + 1 : heartCount}</span> */}
+                        <MdDelete onClick={(e)=>handleDelete(e, item.id)} />
+                      </Button>
                     </div>
                   </div>
                 </Card>

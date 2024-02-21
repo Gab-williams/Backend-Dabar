@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef,useCallback } from "react";
 import Content from "../../../layout/content/Content";
 import Head from "../../../layout/head/Head";
 import Dropzone from "react-dropzone";
-import ReactQuill from 'react-quill';
-import { useQuill } from "react-quilljs";
+// import ReactQuill from 'react-quill';
+// import { useQuill } from "react-quilljs";
 // import "../../node_modules/react-quill/dist/quill.snow.css";
-import "../../../../node_modules/react-quill/dist/quill.snow.css"
+// import "../../../../node_modules/react-quill/dist/quill.snow.css"
 // import ImageKit from 'imagekit';
 import { FaRegCopy } from "react-icons/fa";
 import {
@@ -390,10 +390,10 @@ const DocumentEditor = () => {
 // };
   
  const handleImageInsert  = ()=>  {
-  if (quill) {
-    const content = quill.getContents();
-    // console.log(content)
-  }
+  // if (quill) {
+  //   const content = quill.getContents();
+  //   // console.log(content)
+  // }
 };
 
   const modules = {
@@ -443,7 +443,7 @@ var targetOffset = -8 * 60 * 60 * 1000;
 // Calculate the target time by adding the target offset and subtracting the local offset
 // var targetTime = new Date(utcTime + targetOffset - localOffset);
 
-const {quill, quillRef} = useQuill(modules, formats);
+// const {quill, quillRef} = useQuill(modules, formats);
   
 // console.log(quillRef)
 
