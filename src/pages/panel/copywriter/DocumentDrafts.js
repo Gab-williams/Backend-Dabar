@@ -229,7 +229,30 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
   
    }
 
+     // Create a new Date object representing the current time
+var currentDate = new Date();
 
+// Get the current time zone offset in milliseconds
+var localOffset = currentDate.getTimezoneOffset() * 60 * 1000; // Convert minutes to milliseconds
+
+// Calculate the current UTC time in milliseconds
+var utcTime = currentDate.getTime() + localOffset;
+
+// Define the target time zone offset (e.g., PST is -8 hours)
+var targetOffset = -8 * 60 * 60 * 1000;
+var currentPSt = new Date(utcTime + targetOffset - localOffset);
+
+const pstcurrent = (schedule, status)=>{
+  if (schedule > currentPSt) {
+   return "Scheduled"
+  } else {
+    if(parseInt(status) == 1){
+      return "Publish"
+     }else{
+      return "Draft"
+     }
+  }
+}
 
   return (
     <React.Fragment>
@@ -287,6 +310,7 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                                   <li>
                                       <a href="#"><Icon name="calendar-check"></Icon><span>Date Created</span></a>
                                   </li>
+                                  
                                   <li className="active">
                                       <a href="#"><Icon name="edit"></Icon><span>Last Modified</span></a>
                                   </li>
@@ -335,6 +359,9 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                 <DataTableRow size="sm">
                   <h6 className="overline-title">Type</h6>
                 </DataTableRow>
+                <DataTableRow size="sm">
+                  <h6 className="overline-title">status</h6>
+                </DataTableRow>
                 <DataTableRow size="md">
                   <h6 className="overline-title">Last Modified</h6>
                 </DataTableRow>
@@ -343,6 +370,9 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
               {/*Head*/}
               {story.length > 0
                 ? story.map((item, index) => {
+
+
+                  let schedule_time = new Date(item.schedule_story_time)
                      
                   const randomIndex = Math.floor(Math.random() * index + 1);
                   // Use the random index to get a random element from the array
@@ -367,6 +397,9 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
                         </DataTableRow>
                         <DataTableRow size="sm">
                           <Badge color={randomColor} className="badge-dim rounded-pill">{item.category_id}</Badge>
+                        </DataTableRow>
+                        <DataTableRow size="md">
+                          <div className="sub-text d-inline-flex flex-wrap gx-2"> {pstcurrent(schedule_time, item.status)} </div>
                         </DataTableRow>
                         <DataTableRow size="md">
                           <div className="sub-text d-inline-flex flex-wrap gx-2">{formattedDate}</div>
