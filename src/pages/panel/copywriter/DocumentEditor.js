@@ -645,9 +645,17 @@ useEffect(()=>{
         headers:{
           "Authorization":"Bearer "+local.token,
           }
-      }).then(res=>{
+      }).then(async res=>{
          console.log("edit res", res)
         if(res.data.message){
+
+          // psttime
+           let urldf = `api/psttime`;    
+        await  apiClient.get('/sanctum/csrf-cookie');
+        let resxs = await apiClient.get(urldf)
+      
+
+
         let answriter = writerdata.find((item)=>item.id == res.data.message.writer_id)
        let anscategory = categorydata.find((item)=>item.id == res.data.message.category_id)
           Setpresummary(res.data.message.presummary)
@@ -663,7 +671,7 @@ useEffect(()=>{
           Setcategory_id(res.data.message.category_id)
           // console.log("Status check",res.data.message.status)
             let schedule_time = new Date(res.data.message.schedule_story_time)
-            let current_time = new Date(utcTime + targetOffset - localOffset);
+            let current_time = new Date(resxs.data.success);
               // if (schedule_time > current_time) {
               //   Settextin("Scheduled")
               //   Setisdisabledclock(true)
@@ -1018,6 +1026,15 @@ const handleMove =(e)=>{
         SetisClock(false)
       }
     }
+
+
+
+    const pst_current = async ()=>{
+      let urldf = `api/psttime`;    
+      await  apiClient.get('/sanctum/csrf-cookie');
+      let resxs = await apiClient.get(urldf)
+      return  resxs.data.success
+    }
   return (
     <React.Fragment>
       <Head title="Document Editor"></Head>
@@ -1082,7 +1099,7 @@ const handleMove =(e)=>{
                              disableClock={isdisabledclock}
                              calendarIcon={null}
                              clearIcon={null}
-                             minDate={new Date(schedule_story_time.getTime() - (localOffset - targetOffset))}
+                             minDate={new Date(pst_current())}
                            />
                            {textin == 'Scheduled'?"":
                            <button onClick={handleClock}>    {isClock ? 'Hide Clock' : 'Show Clock'} </button>

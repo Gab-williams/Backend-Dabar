@@ -229,20 +229,25 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
   
    }
 
-     // Create a new Date object representing the current time
-var currentDate = new Date();
+//      // Create a new Date object representing the current time
+// var currentDate = new Date();
 
-// Get the current time zone offset in milliseconds
-var localOffset = currentDate.getTimezoneOffset() * 60 * 1000; // Convert minutes to milliseconds
+// // Get the current time zone offset in milliseconds
+// var localOffset = currentDate.getTimezoneOffset() * 60 * 1000; // Convert minutes to milliseconds
 
-// Calculate the current UTC time in milliseconds
-var utcTime = currentDate.getTime() + localOffset;
+// // Calculate the current UTC time in milliseconds
+// var utcTime = currentDate.getTime() + localOffset;
 
-// Define the target time zone offset (e.g., PST is -8 hours)
-var targetOffset = -8 * 60 * 60 * 1000;
-var currentPSt = new Date(utcTime + targetOffset - localOffset);
+// // Define the target time zone offset (e.g., PST is -8 hours)
+// var targetOffset = -8 * 60 * 60 * 1000;
+// var currentPSt = new Date(utcTime + targetOffset - localOffset);
 
-const pstcurrent = (schedule, status)=>{
+const pstcurrent = async (schedule, status)=>{
+  let urldf = `api/psttime`;    
+      await  apiClient.get('/sanctum/csrf-cookie');
+      let resxs = await apiClient.get(urldf)
+   let currentPSt =   resxs.data.success
+
   if (schedule > currentPSt) {
    return "Scheduled"
   }else if(schedule.toDateString() == currentPSt.toDateString()){
