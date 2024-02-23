@@ -22,6 +22,7 @@ const EditModal = ({modal,closeModal, formData, setFormData,filterStatus, local,
   const options = [
     { value: 'Admin', label: 'Admin' },
     { value: 'Editor', label: 'Editor' },
+    { value: 'Marketer', label: 'Marketer' }
   ]
   // console.log(singleobj)
   const [firstname, Setfirstname] = useState("")

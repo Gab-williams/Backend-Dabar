@@ -35,6 +35,7 @@ const AddModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatus
   const options = [
     { value: 'Admin', label: 'Admin' },
     { value: 'Editor', label: 'Editor' },
+    { value: 'Marketer', label: 'Marketer' },
   ]
 
   
@@ -42,7 +43,7 @@ const AddModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatus
   const handleSubmit =(e)=>{
     e.preventDefault();
 
-    if(role != 'Admin' || role != 'admin'){
+    // if(role != 'Admin' || role != 'admin'){
 
       let formData = new FormData();
       formData.append('firstname',  firstname)
@@ -74,11 +75,11 @@ const AddModal = ({modal,closeModal,onSubmit, formData, setFormData,filterStatus
       
         })
       })
-    }else{
+    // }else{
 
 
 
-    }
+    // }
   
 
   }

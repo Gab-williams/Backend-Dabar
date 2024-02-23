@@ -212,13 +212,13 @@ const Profile = () => {
                 }}>Profile</NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag="a"
+                {/* <NavLink tag="a"
                 href="#tab"
                 className={classnames({ active: activeTab === "billing" })}
                 onClick={(ev) => {
                   ev.preventDefault();
                   toggleTab("billing");
-                }}>Payment &amp; Billing</NavLink>
+                }}>Payment &amp; Billing</NavLink> */}
               </NavItem>
             </Nav>
             <div className="card-inner">

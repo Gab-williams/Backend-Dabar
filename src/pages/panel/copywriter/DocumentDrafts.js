@@ -245,14 +245,37 @@ var currentPSt = new Date(utcTime + targetOffset - localOffset);
 const pstcurrent = (schedule, status)=>{
   if (schedule > currentPSt) {
    return "Scheduled"
-  } else {
+  }else if(schedule.toDateString() == currentPSt.toDateString()){
+     if(schedule.getHours() > currentPSt.getHours() || (schedule.getHours() === currentPSt.getHours() && schedule.getMinutes() > currentPSt.getMinutes())){
+      return "Scheduled"
+     }else{
+      if(parseInt(status) == 1){
+        return "Publish"
+       }else{
+        return "Draft"
+       }
+     }
+  }
+   else {
     if(parseInt(status) == 1){
       return "Publish"
      }else{
       return "Draft"
      }
   }
-}
+
+
+//   if (schedule.toDateString() == currentPSt.toDateString()) {
+//     // If the scheduled date is the same as the current date, check if scheduled time is greater than current time
+//     if (schedule.getTime() > currentPSt.getTime()) {        
+//       console.log('Scheduled time is in the future.');
+//     } else {
+//         console.log('Scheduled time is not in the future.');
+//     }
+// } else {
+//     console.log('Scheduled date is not the same as the current date.');
+// }
+ }
 
   return (
     <React.Fragment>

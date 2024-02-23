@@ -634,7 +634,7 @@ useEffect(()=>{
 
 
 const [isdisabledclock, Setisdisabledclock] = useState(false)
-
+const [extistingimg, Setextistingimg]  = useState('')
 useEffect(()=>{
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
 
@@ -646,7 +646,7 @@ useEffect(()=>{
           "Authorization":"Bearer "+local.token,
           }
       }).then(res=>{
-        //  console.log("edit res", res)
+         console.log("edit res", res)
         if(res.data.message){
         let answriter = writerdata.find((item)=>item.id == res.data.message.writer_id)
        let anscategory = categorydata.find((item)=>item.id == res.data.message.category_id)
@@ -654,32 +654,61 @@ useEffect(()=>{
           Setread_time(res.data.message.read_time)
           Setheading(res.data.message.heading)
           Setmain_image(res.data.message.main_image)
+          Setextistingimg(res.data.message.main_image)
           Setthumbnail(res.data.message.thumbnail)
           Setkeypoints(res.data.message.keypoint)
-          Setschedule_story_time(new Date(res.data.message.schedule_story_time))
+         let schedule_story_timeans = new Date(res.data.message.schedule_story_time)
+          Setschedule_story_time(schedule_story_timeans)
           Setwriter_id(res.data.message.writer_id)
           Setcategory_id(res.data.message.category_id)
           // console.log("Status check",res.data.message.status)
             let schedule_time = new Date(res.data.message.schedule_story_time)
             let current_time = new Date(utcTime + targetOffset - localOffset);
+              // if (schedule_time > current_time) {
+              //   Settextin("Scheduled")
+              //   Setisdisabledclock(true)
+              // } else {
+              //   if(res.data.message.status == 1){
+              //     Settextin("Publish")
+              //     Setisdisabledclock(true)
+              //    }else{
+              //     Settextin("Draft")
+              //    }
+              // }
+
               if (schedule_time > current_time) {
-                Settextin("Scheduled")
+                              Settextin("Scheduled")
                 Setisdisabledclock(true)
-              } else {
-                if(res.data.message.status == 1){
+               }else if(schedule_time.toDateString() == current_time.toDateString()){
+                  if(schedule_time.getHours() > current_time.getHours() || (current_time.getHours() === current_time.getHours() && schedule_time.getMinutes() > current_time.getMinutes())){
+                                Settextin("Scheduled")
+                Setisdisabledclock(true)
+                  }else{
+                   if(parseInt(res.data.message.status) == 1){
+                    Settextin("Publish")
+                    Setisdisabledclock(true)
+                    }else{
+                      Settextin("Draft")
+                    }
+                  }
+               }
+                else {
+                 if(parseInt(status) == 1){
                   Settextin("Publish")
                   Setisdisabledclock(true)
-                 }else{
-                  Settextin("Draft")
-                 }
-              }
+                  }else{
+                    Settextin("Draft")
+                  }
+               }
+
+
            Setstatus(res.data.message.status)
-           if(res.data.message.status == 1){
-            Settextin("Publish")
-            Setisdisabledclock(true)
-           }else{
-            Settextin("Draft")
-           }
+          //  if(res.data.message.status == 1){
+          //   Settextin("Publish")
+          //   Setisdisabledclock(true)
+          //  }else{
+          //   Settextin("Draft")
+          //  }
           let stringx = "<p>dhdhjdjdsj</p>";
           var parser = new DOMParser();
           var parsedHtml = parser.parseFromString(res.data.message.body, "text/html");
@@ -743,7 +772,12 @@ if(Object.keys(main_image).length > 0){
 let main_imagex =   await Imagekitupload(main_image);
 // console.log(main_imagex)
   let formData = new FormData();
-  let schedule_story_timex =  schedule_story_time.toISOString()
+  const localScheduleTime = new Date(schedule_story_time.getTime() - (schedule_story_time.getTimezoneOffset() * 60000));
+
+// Convert the adjusted time to a string in ISO format
+const schedule_story_timex = localScheduleTime.toISOString();
+
+  // let schedule_story_timex =  schedule_story_time.toISOString()
   let stories_sectionx = JSON.stringify(stories_section)
 
   formData.append('body',  contentStatex)
@@ -771,9 +805,9 @@ let main_imagex =   await Imagekitupload(main_image);
         Setmessage("Edit Successful")
         setModalSuccess(true)
         // window.location.href = original+'/demo9/copywriter'
-        setTimeout(()=>{
-          window.location.href = `${original}/demo9/copywriter`;
-        },3000)
+        // setTimeout(()=>{
+        //   window.location.href = `${original}/demo9/copywriter`;
+        // },3000)
       }
     }).catch(err=>{
 
@@ -816,7 +850,8 @@ let main_imagex =   await Imagekitupload(main_image);
   })
 
 }else{
-  let schedule_story_timex =  schedule_story_time.toISOString()
+  const localScheduleTime = new Date(schedule_story_time.getTime() - (schedule_story_time.getTimezoneOffset() * 60000));
+const schedule_story_timex = localScheduleTime.toISOString();
   let stories_sectionx = JSON.stringify(stories_section)
   let formData = new FormData();
   formData.append('body',  contentStatex)
@@ -969,6 +1004,7 @@ const handleMove =(e)=>{
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [showcalender, Setshowcalender ] = useState(false)
     const handleDateChange = (date) => {
+      console.log(date)
       // setSelectedDate(date);
       Setschedule_story_time(date)
       setIsCalendarOpen(false); // Close calendar after selection
@@ -1033,10 +1069,11 @@ const handleMove =(e)=>{
               <div className="nk-editor-tools d-none d-xl-flex">
                 <ul className="d-inline-flex gx-3 gx-lg-4 pe-4 pe-lg-5">
                   <li>
-                    
-                  <button onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
-                              {isCalendarOpen ? 'Hide Calendar' : 'Show Calendar'}
+                     {textin == 'Scheduled'?"":
+                     <button onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
+                       {isCalendarOpen ? 'Hide Calendar' : 'Show Calendar'}
                             </button>
+                     }         
                              <DateTimePicker
                              onChange={handleDateChange}
                              value={schedule_story_time}
@@ -1045,10 +1082,12 @@ const handleMove =(e)=>{
                              disableClock={isdisabledclock}
                              calendarIcon={null}
                              clearIcon={null}
-                             minDate={new Date(utcTime + targetOffset - localOffset)}
+                             minDate={new Date(schedule_story_time.getTime() - (localOffset - targetOffset))}
                            />
+                           {textin == 'Scheduled'?"":
+                           <button onClick={handleClock}>    {isClock ? 'Hide Clock' : 'Show Clock'} </button>
 
-                 <button onClick={handleClock}>    {isClock ? 'Hide Clock' : 'Show Clock'} </button>
+                          }
                   </li>
                   {/* <li>
                     <span className="sub-text text-nowrap">
@@ -1151,6 +1190,13 @@ const handleMove =(e)=>{
                             <div className="form-control-wrap">
                               <input type="file"   onChange={(e)=>Setmain_image(e.target.files[0])} classNamePrefix="react-select"  className="form-control"/>
                             </div>
+
+                            {extistingimg&&<section style={{ display:"flex", alignItems:"center",  flexDirection:"row" }}>
+                          <div style={{ width:"100px", height:"70px" }}>
+                              <img src={extistingimg} className="w-full h-full" />
+                            </div>
+                           
+                          </section>}
                           </div>
                         </Col>
 
