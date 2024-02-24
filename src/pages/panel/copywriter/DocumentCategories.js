@@ -122,6 +122,19 @@ const DocumentCategories = () => {
 
       })
 
+      const checkupdatex = async()=>{
+        let urlzxs = '/api/updatestories';
+        await  apiClient.get('/sanctum/csrf-cookie')
+          let headers = new Headers();
+         headers.append('Content-Type', 'application/json')
+         let checkupdate =  await  apiClient.get(urlzxs,headers)
+    }
+    const min = 60 * 1000
+    const inteval = setInterval(()=>{
+      checkupdatex()
+    },min)
+     return clearInterval(()=>inteval)
+
   },[])
   const navigate = useNavigate();
   const handleDelete = (e, id)=>{
