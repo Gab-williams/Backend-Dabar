@@ -1041,7 +1041,7 @@ const handleMove =(e)=>{
 
 
 
-console.log('see', currentpst, 'target', targetTime)
+// console.log('see', currentpst, 'target', targetTime)
   return (
     <React.Fragment>
       <Head title="Document Editor"></Head>
