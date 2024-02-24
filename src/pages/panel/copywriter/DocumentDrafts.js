@@ -69,6 +69,8 @@ const DocumentDrafts = () => {
     }
   };
 
+  const [currentPSt, SetcurrentPSt] = useState("")
+
   // unselects the data on mount
   useEffect(() => {
     let newData;
@@ -92,6 +94,16 @@ const DocumentDrafts = () => {
         }
       })
     })
+    const pst_current = async ()=>{
+      let urldf = `api/psttime`;    
+      await  apiClient.get('/sanctum/csrf-cookie');
+      let resxs = await apiClient.get(urldf)
+      let timexs =   new Date(resxs.data.success)
+      SetcurrentPSt(timexs)
+    }
+
+    pst_current() 
+
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Changing state value when searching name
@@ -242,11 +254,8 @@ apiClient.get('/sanctum/csrf-cookie').then(()=>{
 // var targetOffset = -8 * 60 * 60 * 1000;
 // var currentPSt = new Date(utcTime + targetOffset - localOffset);
 
-const pstcurrent = async (schedule, status)=>{
-  let urldf = `api/psttime`;    
-      await  apiClient.get('/sanctum/csrf-cookie');
-      let resxs = await apiClient.get(urldf)
-   let currentPSt =   resxs.data.success
+const pstcurrent =  (schedule, status)=>{
+
 
   if (schedule > currentPSt) {
    return "Scheduled"
@@ -427,7 +436,7 @@ const pstcurrent = async (schedule, status)=>{
                           <Badge color={randomColor} className="badge-dim rounded-pill">{item.category_id}</Badge>
                         </DataTableRow>
                         <DataTableRow size="md">
-                          <div className="sub-text d-inline-flex flex-wrap gx-2"> {pstcurrent(schedule_time, item.status)} </div>
+                          <div className="sub-text d-inline-flex flex-wrap gx-2"> { pstcurrent(schedule_time, item.status)} </div>
                         </DataTableRow>
                         <DataTableRow size="md">
                           <div className="sub-text d-inline-flex flex-wrap gx-2">{formattedDate}</div>

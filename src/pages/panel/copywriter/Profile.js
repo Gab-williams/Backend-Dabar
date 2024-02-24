@@ -70,6 +70,8 @@ const Profile = () => {
   const [messagex, Setmessagex] = useState('')
    const [firstname, Setfirstname] = useState('')
    const [lastname, Setlastname] = useState("")
+   const [timezone, Settimezone] = useState("")
+
   useEffect(()=>{
     let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
     Setlocalx(local)
@@ -98,6 +100,16 @@ const Profile = () => {
         }
       })
     })
+
+    const pst_current = async ()=>{
+      let urldf = `api/psttime`;    
+      await  apiClient.get('/sanctum/csrf-cookie');
+      let resxs = await apiClient.get(urldf)
+      let timexs =   new Date(resxs.data.success)
+       Settimezone(timexs)
+    }
+
+    pst_current() 
 
 
   },[])
@@ -172,17 +184,18 @@ const Profile = () => {
   }
 
   // Create a new Date object representing the current time
-  var currentDate = new Date();
+  // var currentDate = new Date();
 
-  // Get the current time zone offset in milliseconds
-  var localOffset = currentDate.getTimezoneOffset() * 60 * 1000; // Convert minutes to milliseconds
+  // // Get the current time zone offset in milliseconds
+  // var localOffset = currentDate.getTimezoneOffset() * 60 * 1000; // Convert minutes to milliseconds
   
-  // Calculate the current UTC time in milliseconds
-  var utcTime = currentDate.getTime() + localOffset;
+  // // Calculate the current UTC time in milliseconds
+  // var utcTime = currentDate.getTime() + localOffset;
   
-  // Define the target time zone offset (e.g., PST is -8 hours)
-  var targetOffset = -8 * 60 * 60 * 1000;
-   let timezone = new Date(utcTime + targetOffset - localOffset)
+  // // Define the target time zone offset (e.g., PST is -8 hours)
+  // var targetOffset = -8 * 60 * 60 * 1000;
+  //  let timezone = new Date(utcTime + targetOffset - localOffset)
+
 
   return (
     <React.Fragment>

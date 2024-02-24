@@ -438,10 +438,10 @@ var localOffset = currentDate.getTimezoneOffset() * 60 * 1000; // Convert minute
 var utcTime = currentDate.getTime() + localOffset;
 
 // Define the target time zone offset (e.g., PST is -8 hours)
-var targetOffset = -8 * 60 * 60 * 1000;
+var targetOffset = -9 * 60 * 60 * 1000;
 
 // Calculate the target time by adding the target offset and subtracting the local offset
-// var targetTime = new Date(utcTime + targetOffset - localOffset);
+ var targetTime = new Date(utcTime + targetOffset - localOffset);
 
 // const {quill, quillRef} = useQuill(modules, formats);
   
@@ -460,7 +460,7 @@ var targetOffset = -8 * 60 * 60 * 1000;
   const [main_image, Setmain_image] = useState("")
   const [keypoints, Setkeypoints] = useState("")
   const [thumbnail, Setthumbnail] = useState("")
-  const [schedule_story_time, Setschedule_story_time] = useState(new Date(utcTime + targetOffset - localOffset))
+  const [schedule_story_time, Setschedule_story_time] = useState(targetTime)
   const [status, Setstatus] = useState(0)
   const handleSubmit = async(e)=>{
     e.preventDefault();
@@ -559,6 +559,7 @@ const [categoryword, Setcategoryword] = useState("")
 const [writerword, Setwriterword] = useState("")
 const [mediapic, Setmediapic] = useState([])
 const [allsection, Setallsection] = useState([])
+const [currentpst, Setcurrentpst] = useState("")
 useEffect(()=>{
   let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
  
@@ -628,6 +629,17 @@ useEffect(()=>{
      
     })
   })
+
+  const pst_current = async ()=>{
+    let urldf = `api/psttime`;    
+    await  apiClient.get('/sanctum/csrf-cookie');
+    let resxs = await apiClient.get(urldf)
+    let timexs =   new Date(resxs.data.success)
+    console.log(timexs)
+    Setcurrentpst(timexs)
+  }
+
+  pst_current()
 
 },[])
 
@@ -1029,12 +1041,7 @@ const handleMove =(e)=>{
 
 
 
-    const pst_current = async ()=>{
-      let urldf = `api/psttime`;    
-      await  apiClient.get('/sanctum/csrf-cookie');
-      let resxs = await apiClient.get(urldf)
-      return  resxs.data.success
-    }
+console.log('see', currentpst, 'target', targetTime)
   return (
     <React.Fragment>
       <Head title="Document Editor"></Head>
@@ -1099,7 +1106,8 @@ const handleMove =(e)=>{
                              disableClock={isdisabledclock}
                              calendarIcon={null}
                              clearIcon={null}
-                             minDate={new Date(pst_current())}
+                            //  minDate={targetTime}
+                            minDate={schedule_story_time?new Date(schedule_story_time.getTime() - (localOffset - targetOffset)):targetTime}
                            />
                            {textin == 'Scheduled'?"":
                            <button onClick={handleClock}>    {isClock ? 'Hide Clock' : 'Show Clock'} </button>
