@@ -7,13 +7,13 @@ import Notification from "./dropdown/notification/Notification";
 import LanguageHead from "./dropdown/language/Language";
 import Menu from "../menu/MenuHeader";
 import {copywriterheadermenu} from "../menu/MenuData";
-
+import axios from 'axios';
 import { useTheme, useThemeUpdate } from '../provider/Theme';
 
 const Header = ({ fixed, className, ...props }) => {
 
   const [sticky, setSticky] = useState(false);
-  
+  const [showCurrenttime, SetshowCurrenttime] = useState("")
   const theme = useTheme();
   const themeUpdate = useThemeUpdate();
 
@@ -25,6 +25,26 @@ const Header = ({ fixed, className, ...props }) => {
     [`is-${theme.header}`]: theme.header !== "white" && theme.header !== "light",
     [`${className}`]: className,
   });
+  const apiClient = axios.create({
+    baseURL: "https://dabarmedia.com/",
+    withCredentials: true
+  });
+
+  useEffect(()=>{
+    const gettime = async  ()=>{
+      let urldf = `api/psttime`;    
+      await  apiClient.get('/sanctum/csrf-cookie');
+      let resxs = await apiClient.get(urldf)
+      SetshowCurrenttime(resxs.data.success)
+    }
+    gettime()
+    // const inteval = setInterval(()=>{
+    //   gettime()
+    // },5000)
+
+    // return clearInterval(()=>inteval)
+  },[showCurrenttime])
+
 
   useEffect(() => {
     let _item_offset = 30;
@@ -34,6 +54,8 @@ const Header = ({ fixed, className, ...props }) => {
       setSticky(false);
     }
   }, [window.scrollY])
+
+
   
 
   return (
@@ -60,9 +82,9 @@ const Header = ({ fixed, className, ...props }) => {
               {/* <li className="notification-dropdown me-n1">
                 <Notification />
               </li> */}
-              {/* <li className="language-dropdown d-none d-sm-block me-n1" >
-                <LanguageHead />
-              </li> */}
+              <li className="language-dropdown d-none d-sm-block me-n1" >
+                PST TimeZone: {showCurrenttime}
+              </li>
               <li className="user-dropdown">
                 <User />
               </li>

@@ -66,6 +66,7 @@ import { Editor as WysiwygEditor } from 'react-draft-wysiwyg';
 import "../../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css";
 import draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
+import '../../../assets/css/style.css'
 const options = [
     { value: 'chocolate', label: 'Chocolate' },
     { value: 'strawberry', label: 'Strawberry' },
@@ -493,6 +494,8 @@ var targetOffset = -9 * 60 * 60 * 1000;
         // console.log(res)
         if(res.data.success){
           Setmessage(res.data.success)
+           let datecxz = new Date(res.data.date)
+          Setschedule_story_time(datecxz)
           // window.location.href = original+'/demo9/copywriter'
           setModalSuccess(true)
           setTimeout(()=>{
@@ -696,30 +699,22 @@ useEffect(()=>{
               //    }
               // }
 
-              if (schedule_time > current_time) {
-                              Settextin("Scheduled")
-                Setisdisabledclock(true)
-               }else if(schedule_time.toDateString() == current_time.toDateString()){
-                  if(schedule_time.getHours() > current_time.getHours() || (current_time.getHours() === current_time.getHours() && schedule_time.getMinutes() > current_time.getMinutes())){
-                                Settextin("Scheduled")
-                Setisdisabledclock(true)
-                  }else{
+          
                    if(parseInt(res.data.message.status) == 1){
                     Settextin("Publish")
                     Setisdisabledclock(true)
                     }else{
+                      // Settextin("Draft")
+                          if(schedule_time.toDateString() == current_time.toDateString()){
+                          if(schedule_time.getHours() > current_time.getHours() || (current_time.getHours() === current_time.getHours() && schedule_time.getMinutes() > current_time.getMinutes())){
+                          Settextin("Scheduled")
+                      Setisdisabledclock(true)
+                            }
+                    }else{
                       Settextin("Draft")
                     }
-                  }
-               }
-                else {
-                 if(parseInt(status) == 1){
-                  Settextin("Publish")
-                  Setisdisabledclock(true)
-                  }else{
-                    Settextin("Draft")
-                  }
-               }
+                    }
+             
 
 
            Setstatus(res.data.message.status)
@@ -787,10 +782,11 @@ let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage
 
 
 const contentStatex = draftToHtml(convertToRaw(editorState.getCurrentContent()));
-if(Object.keys(main_image).length > 0){
+if(Object.keys(main_image).length > 0 || main_image){
+  console.log('first side')
   // let thumbnailx =  await Imagekitupload(thumbnail);
 let main_imagex =   await Imagekitupload(main_image);
-// console.log(main_imagex)
+  console.log(main_imagex, main_image)
   let formData = new FormData();
   const localScheduleTime = new Date(schedule_story_time.getTime() - (schedule_story_time.getTimezoneOffset() * 60000));
 
@@ -810,7 +806,7 @@ const schedule_story_timex = localScheduleTime.toISOString();
   formData.append("schedule_story_time", schedule_story_timex)
   formData.append("stories_section", stories_sectionx)
   formData.append('status', status)
-  formData.append('_method', 'put')
+  // formData.append('_method', 'put')
   formData.append('category_id',  category_id)
   formData.append('writer_id',  writer_id)
   formData.append('id',  editid)
@@ -824,6 +820,8 @@ const schedule_story_timex = localScheduleTime.toISOString();
       if(res.data.success){
         Setmessage("Edit Successful")
         setModalSuccess(true)
+        let datecxz = new Date(res.data.date)
+        Setschedule_story_time(datecxz)
         // window.location.href = original+'/demo9/copywriter'
         // setTimeout(()=>{
         //   window.location.href = `${original}/demo9/copywriter`;
@@ -868,12 +866,14 @@ const schedule_story_timex = localScheduleTime.toISOString();
     })
 
   })
-
-}else{
+// if(Object.keys(main_image).length !== 0 )
+}else if(Object.keys(main_image).length !== 0 ){
   const localScheduleTime = new Date(schedule_story_time.getTime() - (schedule_story_time.getTimezoneOffset() * 60000));
 const schedule_story_timex = localScheduleTime.toISOString();
   let stories_sectionx = JSON.stringify(stories_section)
   let formData = new FormData();
+  console.log('second side')
+
   formData.append('body',  contentStatex)
   formData.append('presummary',  presummary)
   formData.append('read_time',  read_time)
@@ -884,7 +884,7 @@ const schedule_story_timex = localScheduleTime.toISOString();
   formData.append("schedule_story_time", schedule_story_timex)
   formData.append('status', status)
   formData.append("stories_section", stories_sectionx)
-  formData.append('_method', 'put')
+  // formData.append('_method', 'put')
   formData.append('category_id',  category_id)
   formData.append('writer_id',  writer_id)
   formData.append('id',  editid)
@@ -898,6 +898,8 @@ const schedule_story_timex = localScheduleTime.toISOString();
       if(res.data.success){
         Setmessage("Edit Successful")
         setModalSuccess(true)
+        let datecxz = new Date(res.data.date)
+        Setschedule_story_time(datecxz)
         // window.location.href = original+'/demo9/copywriter'
   
       }
@@ -1093,11 +1095,11 @@ const handleMove =(e)=>{
               <div className="nk-editor-tools d-none d-xl-flex">
                 <ul className="d-inline-flex gx-3 gx-lg-4 pe-4 pe-lg-5">
                   <li>
-                     {textin == 'Scheduled'?"":
+                     {/* {textin == 'Scheduled'?"":
                      <button onClick={() => setIsCalendarOpen(!isCalendarOpen)}>
                        {isCalendarOpen ? 'Hide Calendar' : 'Show Calendar'}
                             </button>
-                     }         
+                     }          */}
                              <DateTimePicker
                              onChange={handleDateChange}
                              value={schedule_story_time}
@@ -1109,10 +1111,10 @@ const handleMove =(e)=>{
                             //  minDate={targetTime}
                             minDate={schedule_story_time?new Date(schedule_story_time.getTime() - (localOffset - targetOffset)):targetTime}
                            />
-                           {textin == 'Scheduled'?"":
+                           {/* {textin == 'Scheduled'?"":
                            <button onClick={handleClock}>    {isClock ? 'Hide Clock' : 'Show Clock'} </button>
 
-                          }
+                          } */}
                   </li>
                   {/* <li>
                     <span className="sub-text text-nowrap">
@@ -1259,19 +1261,19 @@ const handleMove =(e)=>{
                               <div style={{ width:'100%', height: 200,  overflowY: 'auto' }}>
                               <WysiwygEditor
                                       editorState={editorState}
-                                      editorStyle={{ fontFamily:'josefin sans, san-serif' }}
+                                      editorStyle={{ fontFamily:'Josefin sans'}}
                                       onEditorStateChange={onEditorStateChange}
                                       toolbar={{
-                                        options: ['inline',  'blockType', 'list', 'image',  'textAlign',   'link', 'embedded', 'emoji',  'remove', 'history'],
-                                        inline: {
-                                          options: ['bold', 'italic', 'underline'],
-                                        },
-                                        blockType: {
-                                          options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'],
-                                        },
+                                        // options: ['inline',  'blockType', 'list',  'image',  'textAlign',   'link', 'embedded', 'emoji',  'remove', 'history'],
+                                        // inline: {
+                                        //   options: ['bold', 'italic', 'underline'],
+                                        // },
+                                        // blockType: {
+                                        //   options: ['Normal', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'],
+                                        // },
                                         image: {
                                           uploadCallback: uploadToImageKit,
-                                          alt: { present: true, mandatory: true },
+                                          alt: { present: true, mandatory: false },
                                         },
                                       }}
                                     />

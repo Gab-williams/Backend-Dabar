@@ -1,0 +1,15 @@
+.react-draft-wysiwyg-editor {
+    font-family: 'Josefin Sans', sans-serif; /* Specify Josefin Sans as the font family */
+}
+
+/* Optionally, reset font family for headings and paragraphs */
+.react-draft-wysiwyg-editor p,
+.react-draft-wysiwyg-editor h1,
+.react-draft-wysiwyg-editor h2,
+.react-draft-wysiwyg-editor h3,
+.react-draft-wysiwyg-editor h4,
+.react-draft-wysiwyg-editor h5,
+.react-draft-wysiwyg-editor h6,
+.react-draft-wysiwyg-editor span {
+    font-family: inherit; /* Inherit font family */
+}
