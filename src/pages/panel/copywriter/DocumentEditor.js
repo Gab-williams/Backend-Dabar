@@ -490,7 +490,7 @@ var targetOffset = -9 * 60 * 60 * 1000;
         headers:{
           "Authorization":"Bearer "+local.token,
           }
-      }).then(res=>{
+      }).then(async res=>{
         // console.log(res)
         if(res.data.success){
           Setmessage(res.data.success)
@@ -498,10 +498,36 @@ var targetOffset = -9 * 60 * 60 * 1000;
           Setschedule_story_time(datecxz)
           // window.location.href = original+'/demo9/copywriter'
           setModalSuccess(true)
+
+          let urldf = `api/psttime`;    
+          await  apiClient.get('/sanctum/csrf-cookie');
+          let resxs = await apiClient.get(urldf)
+          let current_time = new Date(resxs.data.success);
+  
+              // Settextin("Draft")
+              if (datecxz > current_time) {
+                Settextin("Scheduled")
+                Setisdisabledclock(true)
+               }else if(datecxz.toDateString() == current_time.toDateString()){
+                  if(datecxz.getHours() > current_time.getHours() || (current_time.getHours() === current_time.getHours() && datecxz.getMinutes() > current_time.getMinutes())){
+                  Settextin("Scheduled")
+              Setisdisabledclock(true)
+                    }
+            }else{
+              Settextin("Draft")
+            }
+
+
           setTimeout(()=>{
             window.location.href = `${original}/demo9/copywriter`;
-          },3000)        
-        }
+          },3000)  
+          
+          
+
+
+
+        } 
+
       }).catch(err=>{
         // setModalFail
         
@@ -687,6 +713,7 @@ useEffect(()=>{
           // console.log("Status check",res.data.message.status)
             let schedule_time = new Date(res.data.message.schedule_story_time)
             let current_time = new Date(resxs.data.success);
+            console.log(current_time)
               // if (schedule_time > current_time) {
               //   Settextin("Scheduled")
               //   Setisdisabledclock(true)
@@ -705,7 +732,10 @@ useEffect(()=>{
                     Setisdisabledclock(true)
                     }else{
                       // Settextin("Draft")
-                          if(schedule_time.toDateString() == current_time.toDateString()){
+                      if (schedule_time > current_time) {
+                        Settextin("Scheduled")
+                        Setisdisabledclock(true)
+                       }else if(schedule_time.toDateString() == current_time.toDateString()){
                           if(schedule_time.getHours() > current_time.getHours() || (current_time.getHours() === current_time.getHours() && schedule_time.getMinutes() > current_time.getMinutes())){
                           Settextin("Scheduled")
                       Setisdisabledclock(true)
@@ -816,16 +846,34 @@ const schedule_story_timex = localScheduleTime.toISOString();
       headers:{
         "Authorization":"Bearer "+local.token,
         }
-    }).then(res=>{
+    }).then(async res=>{
       if(res.data.success){
         Setmessage("Edit Successful")
         setModalSuccess(true)
         let datecxz = new Date(res.data.date)
         Setschedule_story_time(datecxz)
-        // window.location.href = original+'/demo9/copywriter'
-        // setTimeout(()=>{
-        //   window.location.href = `${original}/demo9/copywriter`;
-        // },3000)
+       
+        let urldf = `api/psttime`;    
+        await  apiClient.get('/sanctum/csrf-cookie');
+        let resxs = await apiClient.get(urldf)
+        let current_time = new Date(resxs.data.success);
+
+            // Settextin("Draft")
+            if (datecxz > current_time) {
+              Settextin("Scheduled")
+              Setisdisabledclock(true)
+             }else if(datecxz.toDateString() == current_time.toDateString()){
+                if(datecxz.getHours() > current_time.getHours() || (current_time.getHours() === current_time.getHours() && datecxz.getMinutes() > current_time.getMinutes())){
+                Settextin("Scheduled")
+            Setisdisabledclock(true)
+                  }
+          }else{
+            Settextin("Draft")
+          }
+
+      
+
+
       }
     }).catch(err=>{
 
@@ -894,12 +942,30 @@ const schedule_story_timex = localScheduleTime.toISOString();
       headers:{
         "Authorization":"Bearer "+local.token,
         }
-    }).then(res=>{
+    }).then(async res=>{
       if(res.data.success){
         Setmessage("Edit Successful")
         setModalSuccess(true)
         let datecxz = new Date(res.data.date)
-        Setschedule_story_time(datecxz)
+          
+        let urldf = `api/psttime`;    
+        await  apiClient.get('/sanctum/csrf-cookie');
+        let resxs = await apiClient.get(urldf)
+        let current_time = new Date(resxs.data.success);
+
+            // Settextin("Draft")
+            if (datecxz > current_time) {
+              Settextin("Scheduled")
+              Setisdisabledclock(true)
+             }else if(datecxz.toDateString() == current_time.toDateString()){
+                if(datecxz.getHours() > current_time.getHours() || (current_time.getHours() === current_time.getHours() && datecxz.getMinutes() > current_time.getMinutes())){
+                Settextin("Scheduled")
+            Setisdisabledclock(true)
+                  }
+          }else{
+            Settextin("Draft")
+          }
+          
         // window.location.href = original+'/demo9/copywriter'
   
       }
