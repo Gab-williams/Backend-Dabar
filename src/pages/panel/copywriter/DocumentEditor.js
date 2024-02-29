@@ -804,8 +804,9 @@ const handleWriter = (writerword)=>{
   let info = writerdata.find((item)=>item.value == selectedValue)
   Setwriter_id(info.id)
 }
-//
-// console.log(main_image) 
+// const localScheduleTime = new Date(schedule_story_time.getTime() - (schedule_story_time.getTimezoneOffset() * 60000));
+
+// console.log(localScheduleTime) 
 const handleEdit = async(e)=>{
 e.preventDefault();
 let local = localStorage.getItem('thedabar')?JSON.parse(AES.decrypt(localStorage.getItem('thedabar'), 'TheDabar').toString(enc.Utf8)):{}
@@ -819,9 +820,9 @@ let main_imagex =   await Imagekitupload(main_image);
   console.log(main_imagex, main_image)
   let formData = new FormData();
   const localScheduleTime = new Date(schedule_story_time.getTime() - (schedule_story_time.getTimezoneOffset() * 60000));
-
-// Convert the adjusted time to a string in ISO format
 const schedule_story_timex = localScheduleTime.toISOString();
+
+
 
   // let schedule_story_timex =  schedule_story_time.toISOString()
   let stories_sectionx = JSON.stringify(stories_section)
@@ -944,10 +945,11 @@ const schedule_story_timex = localScheduleTime.toISOString();
         }
     }).then(async res=>{
       if(res.data.success){
+
         Setmessage("Edit Successful")
         setModalSuccess(true)
         let datecxz = new Date(res.data.date)
-          
+        Setschedule_story_time(datecxz)
         let urldf = `api/psttime`;    
         await  apiClient.get('/sanctum/csrf-cookie');
         let resxs = await apiClient.get(urldf)
@@ -966,7 +968,7 @@ const schedule_story_timex = localScheduleTime.toISOString();
             Settextin("Draft")
           }
           
-        // window.location.href = original+'/demo9/copywriter'
+        window.location.href = original+'/demo9/copywriter'
   
       }
     }).catch(err=>{
